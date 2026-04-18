@@ -1,0 +1,40 @@
+# Security & Credentials
+.env
+*.pem
+*.json
+!analysis_options.yaml
+!pubspec.yaml
+!package.json
+
+# Large Data & Media
+backend/data/
+backend/*.mp4
+backend/*.mkv
+backend/*.avi
+backend/simulations/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+ENV/
+
+# Flutter/Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.packages
+build/
+ios/Pods/
+android/.gradle/
+android/local.properties
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
