@@ -1,4 +1,4 @@
-# 🛡️ HERO-IE: Hospitality Emergency Response and Orchestration
+# 🛡️ HERO-IE: Hospitality Emergency Response and Orchestration - Integrated Ecosystem
 
 **HERO-IE** is an AI-driven, decentralized emergency management ecosystem specifically designed for high-density hospitality environments (hotels, resorts, stadiums). It leverages cutting-edge Computer Vision and P2P Mesh Networking to provide real-time risk detection, crowd monitoring, and evacuation guidance—even when the internet goes down.
 
