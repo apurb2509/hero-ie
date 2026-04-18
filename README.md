@@ -111,4 +111,4 @@ To test the **Offline Mesh Network**, you need to install the app on at least tw
 ---
 
 ## ⚖️ License
-HERO-IE is developed as a submission for the **Google Solution Challenge, 2026**. All rights reserved by the development team: "**"RunTime Error"**.
+HERO-IE is developed as a submission for the **Google Solution Challenge, 2026**. All rights reserved by the development team: **"RunTime Error"**.
