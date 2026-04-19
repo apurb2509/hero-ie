@@ -6,6 +6,8 @@ import 'package:video_player/video_player.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/services/api_service.dart';
 import '../../core/localization/app_localizations.dart';
+import '../../core/services/auth_service.dart';
+import 'package:go_router/go_router.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
@@ -189,7 +191,17 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   );
                 }
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 8),
+              IconButton(
+                icon: const Icon(Icons.logout, color: AppTheme.errorNeon),
+                onPressed: () async {
+                  await AuthService.signOut();
+                  if (context.mounted) {
+                    context.go('/');
+                  }
+                },
+              ),
+              const SizedBox(width: 8),
             ],
           ),
           body: SingleChildScrollView(

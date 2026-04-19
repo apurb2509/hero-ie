@@ -9,6 +9,10 @@ class Settings(BaseSettings):
     # App Settings
     DEBUG: bool = True
     PORT: int = 8000
+    # Twilio Settings
+    TWILIO_ACCOUNT_SID: Optional[str] = None
+    TWILIO_AUTH_TOKEN: Optional[str] = None
+    TWILIO_PHONE_NUMBER: Optional[str] = None
     
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

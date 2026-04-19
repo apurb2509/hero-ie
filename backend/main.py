@@ -8,6 +8,7 @@ from features.evacuation.router import router as evacuation_router
 from features.heatmap.router import router as heatmap_router
 from features.broadcast.router import router as broadcast_router
 from features.admin.router import router as admin_router
+from features.auth.router import router as auth_router
 
 app = FastAPI(
     title="HERO-IE Backend",
@@ -31,6 +32,7 @@ app.include_router(evacuation_router)
 app.include_router(heatmap_router)
 app.include_router(broadcast_router)
 app.include_router(admin_router)
+app.include_router(auth_router)
 
 @app.get("/")
 async def root():

@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'core/theme/app_theme.dart';
 import 'features/onboarding/landing_screen.dart';
 import 'features/dashboard/user_dashboard_screen.dart';
 import 'features/dashboard/admin_dashboard_screen.dart';
+import 'features/auth/auth_screen.dart';
 
 import 'core/services/api_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Ensure firebase gets initialized later when configuring completely
-  // await Firebase.initializeApp(); 
-  
+  // Initialize Supabase
+  await Supabase.initialize(
+    url: 'https://bjatkogzmdzhwbsuhlii.supabase.co',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJqYXRrb2d6bWR6aHdic3VobGlpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjQ0OTg1MiwiZXhwIjoyMDkyMDI1ODUyfQ.3DLoBeLSD96WVwlDzWhlOm5bVfeN_eBQvBiHQwKDqww',
+  );
+
   // Discover backend automatically
   await ApiService.discoverBackend();
   
@@ -41,6 +45,13 @@ class HeroIEApp extends StatelessWidget {
         GoRoute(
           path: '/admin-dashboard',
           builder: (context, state) => const AdminDashboardScreen(),
+        ),
+        GoRoute(
+          path: '/auth',
+          builder: (context, state) {
+            final role = state.uri.queryParameters['role'] ?? 'guest';
+            return AuthScreen(initialRole: role);
+          },
         ),
       ],
     );

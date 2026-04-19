@@ -4,6 +4,12 @@
 
 ## 🚀 Key Features
 
+### 🔐 Flexible Authentication (Google & Phone with real-time OTP)
+Provides multiple secure and frictionless ways to access the ecosystem.
+- **Google OAuth Integration**: Rapid sign-in using Google accounts for instant access.
+- **Twilio SMS OTP**: Alternative verification method via real-time SMS one-time passwords.
+- **Role-Based Access**: Adaptive routing that directs users to specific dashboards (Staff/Guest) upon successful verification.
+
 ### 🧠 AI Risk Detection (Vision)
 Utilizes state-of-the-art Large Language Models (LLMs) with vision capabilities to monitor CCTV/Live-cam feeds.
 - **Two-Step Simulation**: Optimized ingestion process featuring one-time video storage and lightweight, 5-second analysis polling.
@@ -35,11 +41,13 @@ A real-time "pulse" of the facility for staff, showing high-density areas and po
 - **Framework**: `FastAPI` (High-performance API)
 - **AI Model**: `meta-llama/llama-4-scout-17b-16e-instruct` (via Groq Vision)
 - **Database & Storage**: `Supabase` (Real-time DB + FIFO Image Storage)
+- **Communication**: `Twilio API` (for SMS OTP Verification)
 - **Image Processing**: `OpenCV` (Frame extraction from simulations)
 - **Automation**: `Python-Dotenv`, `Uvicorn`
 
 ### Frontend (Flutter)
 - **Framework**: `Flutter` (Cross-platform Mobile)
+- **Authentication**: `supabase_flutter: ^2.8.1`, `google_sign_in: ^6.2.1`
 - **State Management**: `ValueNotifier` & `Provider` patterns
 - **Networking**: `HTTP`, `Dart IO`
 - **P2P Mesh**: `nearby_connections: ^4.3.0` (Google Nearby API)

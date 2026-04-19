@@ -43,4 +43,21 @@ class AppTheme {
       ),
     );
   }
+
+  static InputDecoration inputDecoration(String label) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: const TextStyle(color: Colors.white70),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: primaryNeon),
+      ),
+      filled: true,
+      fillColor: Colors.white.withOpacity(0.05),
+    );
+  }
 }
