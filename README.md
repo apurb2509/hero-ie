@@ -4,11 +4,12 @@
 
 ## 🚀 Key Features
 
-### 🔐 Flexible Authentication (Google & Phone with real-time OTP)
-Provides multiple secure and frictionless ways to access the ecosystem.
-- **Google OAuth Integration**: Rapid sign-in using Google accounts for instant access.
-- **Twilio SMS OTP**: Alternative verification method via real-time SMS one-time passwords.
-- **Role-Based Access**: Adaptive routing that directs users to specific dashboards (Staff/Guest) upon successful verification.
+### 🔐 Dual-Mode Authentication (Login & Sign-up)
+Provides a frictionless and secure entry system for both new and returning users.
+- **Sign-up Flow**: New users verify via Email/Phone OTP and create a password for future access.
+- **Persistent Login**: Returning users can log in instantly with their Identifier (Email/Phone) and Password, thus eliminating repetitive OTPs.
+- **Google OAuth Integration**: One-tap sign-in with automated profile synchronization and account recognition.
+- **Role-Based Routing**: Automatically directs users to Admin or Guest dashboards based on their verified profile.
 
 ### 🧠 AI Risk Detection (Vision)
 Utilizes state-of-the-art Large Language Models (LLMs) with vision capabilities to monitor CCTV/Live-cam feeds.
