@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/services/api_service.dart';
 import '../../core/localization/app_localizations.dart';
-import '../../core/services/auth_service.dart';
+import '../../core/widgets/app_drawer.dart';
 import 'package:go_router/go_router.dart';
 import 'sos_form_widget.dart';
 
@@ -61,6 +61,7 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
         return Scaffold(
           appBar: AppBar(
             title: Text(AppLocalizations.translate('guest_dashboard')),
+            // Removed logout icon; now in Drawer
             actions: [
               // Connection Status Indicator
               ValueListenableBuilder<bool>(
@@ -83,19 +84,10 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
                   );
                 }
               ),
-              const SizedBox(width: 8),
-              IconButton(
-                icon: const Icon(Icons.logout, color: AppTheme.errorNeon),
-                onPressed: () async {
-                  await AuthService.signOut();
-                  if (context.mounted) {
-                    context.go('/');
-                  }
-                },
-              ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 16),
             ],
           ),
+          drawer: const AppDrawer(role: 'guest'),
           body: SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -106,10 +98,10 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: AppTheme.surfaceColor,
+                      color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: _path.isNotEmpty ? AppTheme.warningNeon : Colors.transparent,
+                        color: _path.isNotEmpty ? AppTheme.warningNeon : Theme.of(context).colorScheme.primary,
                         width: 2,
                       )
                     ),
@@ -117,20 +109,20 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
                       children: [
                          Icon(
                           _path.isNotEmpty ? Icons.directions_run : Icons.check_circle_outline, 
-                          color: _path.isNotEmpty ? AppTheme.warningNeon : AppTheme.primaryNeon, 
+                          color: _path.isNotEmpty ? AppTheme.warningNeon : Theme.of(context).colorScheme.primary, 
                           size: 48
                         ),
                         const SizedBox(height: 12),
                         Text(AppLocalizations.translate(_safePathKey), textAlign: TextAlign.center, style: const TextStyle(fontSize: 16)),
                         if (_path.isNotEmpty) ...[
                           const SizedBox(height: 16),
-                          Text(AppLocalizations.translate('safe_path'), style: const TextStyle(color: AppTheme.primaryNeon, fontWeight: FontWeight.bold)),
+                          Text(AppLocalizations.translate('safe_path'), style: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold)),
                           const SizedBox(height: 8),
                           Wrap(
                             spacing: 8,
                             children: _path.map((node) => Chip(
                               label: Text(node),
-                              backgroundColor: AppTheme.backgroundMatte,
+                              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                             )).toList(),
                           )
                         ]

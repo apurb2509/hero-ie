@@ -49,15 +49,15 @@ class _SOSFormWidgetState extends State<SOSFormWidget> {
         return Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppTheme.surfaceColor,
+            color: Theme.of(context).scaffoldBackgroundColor,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppTheme.primaryNeon.withOpacity(0.3)),
+            border: Border.all(color: Theme.of(context).colorScheme.primary.withOpacity(0.3)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(AppLocalizations.translate('sos_chat'), style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primaryNeon, fontSize: 18)),
-              const SizedBox(height: 12),
+              Text(AppLocalizations.translate('sos_chat'), style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary, fontSize: 18)),
+              const SizedBox(height: 16),
               if (_selectedMedia != null)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 12),
@@ -100,8 +100,8 @@ class _SOSFormWidgetState extends State<SOSFormWidget> {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  IconButton(icon: const Icon(Icons.camera_alt), color: AppTheme.primaryNeon, onPressed: () => _pickMedia(false)),
-                  IconButton(icon: const Icon(Icons.videocam), color: AppTheme.primaryNeon, onPressed: () => _pickMedia(true)),
+                  IconButton(icon: const Icon(Icons.camera_alt), color: Theme.of(context).colorScheme.primary, onPressed: () => _pickMedia(false)),
+                  IconButton(icon: const Icon(Icons.videocam), color: Theme.of(context).colorScheme.primary, onPressed: () => _pickMedia(true)),
                 ],
               ),
               const SizedBox(height: 12),

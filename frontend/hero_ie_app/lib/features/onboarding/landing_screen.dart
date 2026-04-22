@@ -5,6 +5,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/services/nearby_service.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/localization/app_localizations.dart';
+import '../../core/widgets/app_drawer.dart';
 
 class LandingScreen extends StatefulWidget {
   const LandingScreen({super.key});
@@ -43,49 +44,32 @@ class _LandingScreenState extends State<LandingScreen> {
       valueListenable: AppLocalizations.currentLocale,
       builder: (context, locale, _) {
         return Scaffold(
+          drawer: const AppDrawer(role: 'unauthenticated'),
           body: Stack(
             children: [
-              // Original Background
+              // Sleek Pattern Background
               Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [AppTheme.backgroundMatte, Color(0xFF0F2027)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  )
+                color: Theme.of(context).scaffoldBackgroundColor,
+              ),
+              Positioned.fill(
+                child: CustomPaint(
+                  painter: GridPatternPainter(
+                    color: Theme.of(context).colorScheme.primary.withOpacity(0.05),
+                  ),
                 ),
               ),
               
               SafeArea(
                 child: Stack(
                   children: [
-                    // Language Toggle in Top Right
+                    // Menu Button in Top Left
                     Positioned(
                       top: 16,
-                      right: 16,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        decoration: BoxDecoration(
-                          color: AppTheme.surfaceColor,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: AppTheme.primaryNeon.withOpacity(0.5)),
-                        ),
-                        child: DropdownButton<String>(
-                          value: locale,
-                          dropdownColor: AppTheme.surfaceColor,
-                          underline: const SizedBox(),
-                          icon: const Icon(Icons.language, color: AppTheme.primaryNeon, size: 18),
-                          onChanged: (String? newValue) {
-                            if (newValue != null) {
-                              AppLocalizations.currentLocale.value = newValue;
-                            }
-                          },
-                          items: const [
-                            DropdownMenuItem(value: 'en', child: Text('EN', style: TextStyle(color: Colors.white, fontSize: 13))),
-                            DropdownMenuItem(value: 'hi', child: Text('HI', style: TextStyle(color: Colors.white, fontSize: 13))),
-                            DropdownMenuItem(value: 'mr', child: Text('MR', style: TextStyle(color: Colors.white, fontSize: 13))),
-                            DropdownMenuItem(value: 'bn', child: Text('BN', style: TextStyle(color: Colors.white, fontSize: 13))),
-                          ],
+                      left: 16,
+                      child: Builder(
+                        builder: (ctx) => IconButton(
+                          icon: Icon(Icons.menu, color: Theme.of(context).brightness == Brightness.light ? AppTheme.lightTheme.colorScheme.primary : AppTheme.primaryNeon, size: 30),
+                          onPressed: () => Scaffold.of(ctx).openDrawer(),
                         ),
                       ),
                     ),
@@ -96,37 +80,37 @@ class _LandingScreenState extends State<LandingScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(Icons.shield_moon, size: 100, color: AppTheme.primaryNeon),
+                            Icon(Icons.shield_moon, size: 100, color: Theme.of(context).colorScheme.primary),
                             const SizedBox(height: 24),
                             Text(
                               AppLocalizations.translate('app_title'),
                               style: Theme.of(context).textTheme.displayLarge?.copyWith(
                                 letterSpacing: 2,
-                                color: AppTheme.primaryNeon,
+                                color: Theme.of(context).colorScheme.primary,
                               ),
                             ),
                             const SizedBox(height: 8),
                             Text(
                               AppLocalizations.translate('app_tagline'),
-                              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                color: Colors.white70,
-                              ),
+                              style: Theme.of(context).textTheme.bodyLarge,
                             ),
                             const Spacer(),
                             // Role Selection
                             Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: AppTheme.surfaceColor,
+                                color: Theme.of(context).colorScheme.surface,
                                 borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: AppTheme.primaryNeon.withOpacity(0.5)),
+                                border: Border.all(
+                                  color: Theme.of(context).brightness == Brightness.light ? AppTheme.lightTheme.colorScheme.primary.withOpacity(0.5) : AppTheme.primaryNeon.withOpacity(0.5)
+                                ),
                               ),
                               child: Column(
                                 children: [
                                   Text(
                                     AppLocalizations.translate('role_selection'),
                                     textAlign: TextAlign.center,
-                                    style: const TextStyle(color: Colors.white70),
+                                    style: Theme.of(context).textTheme.bodyMedium,
                                   ),
                                   const SizedBox(height: 24),
                                   SizedBox(
@@ -142,8 +126,8 @@ class _LandingScreenState extends State<LandingScreen> {
                                     width: double.infinity,
                                     child: OutlinedButton.icon(
                                       style: OutlinedButton.styleFrom(
-                                        foregroundColor: AppTheme.primaryNeon,
-                                        side: const BorderSide(color: AppTheme.primaryNeon),
+                                        foregroundColor: Theme.of(context).colorScheme.primary,
+                                        side: BorderSide(color: Theme.of(context).colorScheme.primary),
                                         padding: const EdgeInsets.symmetric(vertical: 16),
                                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                       ),
@@ -170,35 +154,33 @@ class _LandingScreenState extends State<LandingScreen> {
                           child: BackdropFilter(
                             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                             child: Container(
-                              color: Colors.black.withOpacity(0.6),
+                              color: Theme.of(context).brightness == Brightness.light ? Colors.white.withOpacity(0.8) : Colors.black.withOpacity(0.6),
                               child: Center(
                                 child: Container(
                                   width: MediaQuery.of(context).size.width * 0.8,
                                   padding: const EdgeInsets.all(32),
                                   decoration: BoxDecoration(
-                                    color: AppTheme.surfaceColor,
+                                    color: Theme.of(context).colorScheme.surface,
                                     borderRadius: BorderRadius.circular(24),
-                                    border: Border.all(color: AppTheme.primaryNeon.withOpacity(0.5)),
+                                    border: Border.all(
+                                      color: Theme.of(context).brightness == Brightness.light ? AppTheme.lightTheme.colorScheme.primary.withOpacity(0.5) : AppTheme.primaryNeon.withOpacity(0.5)
+                                    ),
                                   ),
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      const Icon(Icons.lock_person, size: 64, color: AppTheme.primaryNeon),
+                                      Icon(Icons.lock_person, size: 64, color: Theme.of(context).brightness == Brightness.light ? AppTheme.lightTheme.colorScheme.primary : AppTheme.primaryNeon),
                                       const SizedBox(height: 16),
-                                      const Text(
+                                      Text(
                                         'Please Sign In to Continue',
                                         textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                        style: Theme.of(context).textTheme.displayMedium?.copyWith(fontSize: 18),
                                       ),
                                       const SizedBox(height: 12),
-                                      const Text(
+                                      Text(
                                         'Verified access is required to ensure emergency safety and coordination.',
                                         textAlign: TextAlign.center,
-                                        style: TextStyle(color: Colors.white60),
+                                        style: Theme.of(context).textTheme.bodyMedium,
                                       ),
                                       const SizedBox(height: 32),
                                       ElevatedButton(
@@ -213,7 +195,7 @@ class _LandingScreenState extends State<LandingScreen> {
                                       ),
                                       TextButton(
                                         onPressed: () => setState(() => _showAuthRestriction = false),
-                                        child: const Text('Back', style: TextStyle(color: Colors.white30)),
+                                        child: Text('Back', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).brightness == Brightness.light ? Colors.black54 : Colors.white30)),
                                       ),
                                     ],
                                   ),
@@ -232,4 +214,29 @@ class _LandingScreenState extends State<LandingScreen> {
       }
     );
   }
+}
+
+// Minimal Dotted Grid Painter
+class GridPatternPainter extends CustomPainter {
+  final Color color;
+
+  GridPatternPainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 1.0;
+
+    const double spacing = 30.0;
+
+    for (double i = 0; i < size.width; i += spacing) {
+      for (double j = 0; j < size.height; j += spacing) {
+        canvas.drawCircle(Offset(i, j), 1.5, paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

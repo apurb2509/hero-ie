@@ -7,6 +7,7 @@ import 'features/onboarding/landing_screen.dart';
 import 'features/dashboard/user_dashboard_screen.dart';
 import 'features/dashboard/admin_dashboard_screen.dart';
 import 'features/auth/auth_screen.dart';
+import 'features/settings/settings_screen.dart';
 
 import 'core/services/api_service.dart';
 
@@ -53,14 +54,25 @@ class HeroIEApp extends StatelessWidget {
             return AuthScreen(initialRole: role);
           },
         ),
+        GoRoute(
+          path: '/settings',
+          builder: (context, state) => const SettingsScreen(),
+        ),
       ],
     );
 
-    return MaterialApp.router(
-      title: 'HERO-IE',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.darkTheme,
-      routerConfig: router,
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: AppTheme.themeNotifier,
+      builder: (context, currentMode, _) {
+        return MaterialApp.router(
+          title: 'HERO-IE',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: currentMode,
+          routerConfig: router,
+        );
+      }
     );
   }
 }

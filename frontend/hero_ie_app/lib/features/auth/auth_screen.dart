@@ -24,6 +24,7 @@ class _AuthScreenState extends State<AuthScreen> {
   final TextEditingController _passwordController = TextEditingController();
   
   bool _isLoading = false;
+  bool _obscurePassword = true;
   late String _currentRole;
 
   @override
@@ -117,8 +118,16 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
+    bool isLight = Theme.of(context).brightness == Brightness.light;
+    
+    // Use darker variants for light theme, else use the bright neons
+    Color accentColor = isLight ? Theme.of(context).colorScheme.primary : AppTheme.primaryNeon;
+    if (_isSignUp) {
+      // For sign up, if light mode, use a slightly darker purple
+      accentColor = isLight ? Colors.deepPurpleAccent : AppTheme.secondaryNeon;
+    }
+    
     String title = _isSignUp ? 'Sign Up' : 'Log In';
-    Color accentColor = _isSignUp ? AppTheme.secondaryNeon : AppTheme.primaryNeon;
     
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -127,7 +136,7 @@ class _AuthScreenState extends State<AuthScreen> {
           Positioned.fill(
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-              child: Container(color: Colors.black.withOpacity(0.5)),
+              child: Container(color: Theme.of(context).brightness == Brightness.light ? Colors.white.withOpacity(0.4) : Colors.black.withOpacity(0.5)),
             ),
           ),
           Center(
@@ -136,7 +145,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 width: MediaQuery.of(context).size.width * 0.85,
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: AppTheme.surfaceColor.withOpacity(0.8),
+                  color: Theme.of(context).colorScheme.surface.withOpacity(0.8),
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(color: accentColor.withOpacity(0.3)),
                 ),
@@ -156,9 +165,9 @@ class _AuthScreenState extends State<AuthScreen> {
                       const SizedBox(height: 16),
                       _buildChannelToggle('Phone', Icons.phone, () => setState(() => _phoneMode = true), accentColor),
                     ] else if (!_otpSent) ...[
-                      _buildCredentialInput(accentColor),
+                      _buildCredentialInput(accentColor, context),
                     ] else ...[
-                      _buildOTPInput(accentColor),
+                      _buildOTPInput(accentColor, context),
                     ],
 
                     if (_isLoading) Padding(padding: const EdgeInsets.only(top: 24), child: CircularProgressIndicator(color: accentColor)),
@@ -169,7 +178,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       children: [
                         TextButton(
                           onPressed: () => setState(() { _phoneMode = false; _emailMode = false; _otpSent = false; }),
-                          child: const Text('Back', style: TextStyle(color: Colors.white30)),
+                          child: Text('Back', style: TextStyle(color: Theme.of(context).brightness == Brightness.light ? Colors.black54 : Colors.white30)),
                         ),
                         TextButton(
                           onPressed: _toggleMode,
@@ -187,39 +196,51 @@ class _AuthScreenState extends State<AuthScreen> {
     );
   }
 
-  Widget _buildCredentialInput(Color accentColor) {
+  Widget _buildCredentialInput(Color accentColor, BuildContext context) {
+    bool isLight = Theme.of(context).brightness == Brightness.light;
     return Column(
       children: [
         if (_isSignUp) ...[
           TextField(
             controller: _nameController,
-            style: const TextStyle(color: Colors.white),
-            decoration: AppTheme.inputDecoration('Full Name', focusColor: accentColor).copyWith(prefixIcon: Icon(Icons.person, color: accentColor)),
+            style: TextStyle(color: isLight ? Colors.black87 : Colors.white),
+            enableInteractiveSelection: true,
+            decoration: AppTheme.inputDecoration('Full Name', focusColor: accentColor, isLightMode: isLight).copyWith(prefixIcon: Icon(Icons.person, color: accentColor)),
           ),
           const SizedBox(height: 16),
         ],
         TextField(
           controller: _identifierController,
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: isLight ? Colors.black87 : Colors.white),
           keyboardType: _emailMode ? TextInputType.emailAddress : TextInputType.phone,
-          decoration: AppTheme.inputDecoration(_emailMode ? 'Email Address' : 'Phone Number', focusColor: accentColor).copyWith(
+          enableInteractiveSelection: true,
+          decoration: AppTheme.inputDecoration(_emailMode ? 'Email Address' : 'Phone Number', focusColor: accentColor, isLightMode: isLight).copyWith(
             prefixIcon: Icon(_emailMode ? Icons.email : Icons.phone, color: accentColor),
           ),
         ),
         const SizedBox(height: 16),
         TextField(
           controller: _passwordController,
-          style: const TextStyle(color: Colors.white),
-          obscureText: true,
-          decoration: AppTheme.inputDecoration(_isSignUp ? 'Create password' : 'Password', focusColor: accentColor).copyWith(
+          style: TextStyle(color: isLight ? Colors.black87 : Colors.white),
+          obscureText: _obscurePassword,
+          enableInteractiveSelection: true,
+          decoration: AppTheme.inputDecoration(_isSignUp ? 'Create password' : 'Password', focusColor: accentColor, isLightMode: isLight).copyWith(
             prefixIcon: Icon(Icons.lock_outline, color: accentColor),
+            suffixIcon: IconButton(
+              icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility, color: isLight ? Colors.black54 : Colors.white54),
+              onPressed: () {
+                setState(() {
+                  _obscurePassword = !_obscurePassword;
+                });
+              },
+            ),
           ),
         ),
         const SizedBox(height: 24),
         ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: accentColor,
-            foregroundColor: AppTheme.backgroundMatte,
+            foregroundColor: isLight ? Colors.white : AppTheme.backgroundMatte,
             minimumSize: const Size(double.infinity, 54)
           ),
           onPressed: _isLoading ? null : _handleAuthAction,
@@ -252,24 +273,25 @@ class _AuthScreenState extends State<AuthScreen> {
     );
   }
 
-  Widget _buildOTPInput(Color accentColor) {
+  Widget _buildOTPInput(Color accentColor, BuildContext context) {
+    bool isLight = Theme.of(context).brightness == Brightness.light;
     return Column(
       children: [
-        Text('Verify your ${_emailMode ? "Email" : "Phone"}', style: const TextStyle(color: Colors.white70)),
+        Text('Verify your ${_emailMode ? "Email" : "Phone"}', style: TextStyle(color: isLight ? Colors.black54 : Colors.white70)),
         const SizedBox(height: 16),
         TextField(
           controller: _otpController,
-          style: const TextStyle(color: Colors.white, fontSize: 24, letterSpacing: 8),
+          style: TextStyle(color: isLight ? Colors.black87 : Colors.white, fontSize: 24, letterSpacing: 8),
           textAlign: TextAlign.center,
           keyboardType: TextInputType.number,
           maxLength: 6,
-          decoration: AppTheme.inputDecoration('6-Digit OTP', focusColor: accentColor).copyWith(counterText: ''),
+          decoration: AppTheme.inputDecoration('6-Digit OTP', focusColor: accentColor, isLightMode: isLight).copyWith(counterText: ''),
         ),
         const SizedBox(height: 16),
         ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: accentColor,
-            foregroundColor: AppTheme.backgroundMatte,
+            foregroundColor: isLight ? Colors.white : AppTheme.backgroundMatte,
             minimumSize: const Size(double.infinity, 54)
           ),
           onPressed: _isLoading ? null : _handleVerifyOTP,

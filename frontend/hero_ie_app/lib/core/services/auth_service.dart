@@ -33,6 +33,42 @@ class AuthService {
     }
   }
 
+  // --- Settings specific endpoints ---
+  static Future<Map<String, dynamic>?> getUserSettings() async {
+    final user = currentUser;
+    if (user == null) return null;
+    try {
+      return await _supabase.from('user_settings').select('*').eq('id', user.id).maybeSingle();
+    } catch (e) {
+      print("Get Settings Error: $e");
+      return null;
+    }
+  }
+
+  static Future<bool> upsertUserSettings(Map<String, dynamic> data) async {
+    final user = currentUser;
+    if (user == null) return false;
+    try {
+      data['id'] = user.id; // ensure ID is correct
+      // If full_name is being updated, we also update last_name_update
+      final currentSettings = await getUserSettings();
+      if (currentSettings != null && currentSettings['full_name'] != data['full_name']) {
+        data['last_name_update'] = DateTime.now().toIso8601String();
+        // Also update auth.users metadata to match for consistency
+         await _supabase.auth.updateUser(
+           UserAttributes(data: {'full_name': data['full_name']})
+         );
+      }
+      
+      await _supabase.from('user_settings').upsert(data);
+      return true;
+    } catch (e) {
+      print("Upsert Settings Error: $e");
+      return false;
+    }
+  }
+  // ------------------------------------
+
   static Future<void> signInWithGoogle() async {
     // 1. Configure the Google Sign-In request
     const String webClientId = '939808506560-gf1ocksjrfd3j4v2d1qlsos2bckr0fgj.apps.googleusercontent.com';

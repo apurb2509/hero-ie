@@ -6,7 +6,7 @@ import 'package:video_player/video_player.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/services/api_service.dart';
 import '../../core/localization/app_localizations.dart';
-import '../../core/services/auth_service.dart';
+import '../../core/widgets/app_drawer.dart';
 import 'package:go_router/go_router.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
@@ -191,19 +191,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   );
                 }
               ),
-              const SizedBox(width: 8),
-              IconButton(
-                icon: const Icon(Icons.logout, color: AppTheme.errorNeon),
-                onPressed: () async {
-                  await AuthService.signOut();
-                  if (context.mounted) {
-                    context.go('/');
-                  }
-                },
-              ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 16),
             ],
           ),
+          drawer: const AppDrawer(role: 'staff'),
           body: SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -214,13 +205,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     children: [
                       Expanded(
                         child: ElevatedButton.icon(
-                          style: ElevatedButton.styleFrom(backgroundColor: AppTheme.surfaceColor, foregroundColor: AppTheme.primaryNeon, padding: const EdgeInsets.symmetric(vertical: 20)),
+                          style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.surface, foregroundColor: Theme.of(context).colorScheme.primary, padding: const EdgeInsets.symmetric(vertical: 20)),
                           icon: const Icon(Icons.map),
                           label: Text(AppLocalizations.translate('facility_layout')),
                           onPressed: () {
                              showDialog(context: context, builder: (c) => AlertDialog(
                                title: Text(AppLocalizations.translate('configure_layout')),
-                               backgroundColor: AppTheme.backgroundMatte,
+                               backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                                content: Column(
                                  mainAxisSize: MainAxisSize.min,
                                  children: [
@@ -238,7 +229,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       Expanded(
                         child: ElevatedButton.icon(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: _isLiveFeeding ? AppTheme.warningNeon.withOpacity(0.3) : AppTheme.surfaceColor, 
+                            backgroundColor: _isLiveFeeding ? AppTheme.warningNeon.withOpacity(0.3) : Theme.of(context).colorScheme.surface, 
                             foregroundColor: AppTheme.warningNeon, 
                             padding: const EdgeInsets.symmetric(vertical: 20),
                             side: _isLiveFeeding ? const BorderSide(color: AppTheme.warningNeon, width: 2) : null,
@@ -251,7 +242,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                             } else {
                               showDialog(context: context, builder: (c) => AlertDialog(
                                 title: Text(AppLocalizations.translate('sim_dialog_title')),
-                                backgroundColor: AppTheme.backgroundMatte,
+                                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                                 content: Text(AppLocalizations.translate('sim_dialog_body')),
                                 actions: [
                                   TextButton(onPressed: ()=> Navigator.pop(c), child: Text(AppLocalizations.translate('cancel_btn'))),
@@ -267,12 +258,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   _buildLiveMonitor(),
                   const SizedBox(height: 24),
                   Card(
-                    color: AppTheme.surfaceColor,
+                    color: Theme.of(context).colorScheme.surface,
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
                         children: [
-                          Text(AppLocalizations.translate('heatmap_title'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.primaryNeon)),
+                          Text(AppLocalizations.translate('heatmap_title'), style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary)),
                           const SizedBox(height: 16),
                           _zones.isEmpty 
                           ? const Padding(padding: EdgeInsets.all(8.0), child: CircularProgressIndicator())
@@ -301,7 +292,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     decoration: InputDecoration(
                       hintText: AppLocalizations.translate('broadcast_hint'),
                       filled: true,
-                      fillColor: AppTheme.surfaceColor,
+                      fillColor: Theme.of(context).colorScheme.surface,
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     maxLines: 3,
