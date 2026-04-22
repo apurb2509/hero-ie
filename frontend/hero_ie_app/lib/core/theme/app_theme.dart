@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   static const Color primaryNeon = Color(0xFF00FFCC); // Neon Cyan
+  static const Color secondaryNeon = Color(0xFFBD00FF); // Neon Purple
   static const Color backgroundMatte = Color(0xFF121212); // Matte Black
   static const Color surfaceColor = Color(0xFF1E1E1E);
   static const Color errorNeon = Color(0xFFFF3366); // Neon Red/Pink for SOS
@@ -44,7 +45,7 @@ class AppTheme {
     );
   }
 
-  static InputDecoration inputDecoration(String label) {
+  static InputDecoration inputDecoration(String label, {Color? focusColor}) {
     return InputDecoration(
       labelText: label,
       labelStyle: const TextStyle(color: Colors.white70),
@@ -54,7 +55,7 @@ class AppTheme {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: primaryNeon),
+        borderSide: BorderSide(color: focusColor ?? primaryNeon),
       ),
       filled: true,
       fillColor: Colors.white.withOpacity(0.05),

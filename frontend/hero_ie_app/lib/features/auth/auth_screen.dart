@@ -118,6 +118,7 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     String title = _isSignUp ? 'Sign Up' : 'Log In';
+    Color accentColor = _isSignUp ? AppTheme.secondaryNeon : AppTheme.primaryNeon;
     
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -137,30 +138,30 @@ class _AuthScreenState extends State<AuthScreen> {
                 decoration: BoxDecoration(
                   color: AppTheme.surfaceColor.withOpacity(0.8),
                   borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: AppTheme.primaryNeon.withOpacity(0.3)),
+                  border: Border.all(color: accentColor.withOpacity(0.3)),
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(_phoneMode ? Icons.phone_android : (_emailMode ? Icons.email : Icons.security), 
-                        size: 48, color: AppTheme.primaryNeon),
+                        size: 48, color: accentColor),
                     const SizedBox(height: 16),
-                    Text(title, style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: AppTheme.primaryNeon, fontWeight: FontWeight.bold)),
+                    Text(title, style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: accentColor, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 32),
                     
                     if (!_phoneMode && !_emailMode) ...[
                       _buildGoogleButton(),
                       const SizedBox(height: 16),
-                      _buildChannelToggle('Email', Icons.email, () => setState(() => _emailMode = true)),
+                      _buildChannelToggle('Email', Icons.email, () => setState(() => _emailMode = true), accentColor),
                       const SizedBox(height: 16),
-                      _buildChannelToggle('Phone', Icons.phone, () => setState(() => _phoneMode = true)),
+                      _buildChannelToggle('Phone', Icons.phone, () => setState(() => _phoneMode = true), accentColor),
                     ] else if (!_otpSent) ...[
-                      _buildCredentialInput(),
+                      _buildCredentialInput(accentColor),
                     ] else ...[
-                      _buildOTPInput(),
+                      _buildOTPInput(accentColor),
                     ],
 
-                    if (_isLoading) const Padding(padding: EdgeInsets.only(top: 24), child: CircularProgressIndicator(color: AppTheme.primaryNeon)),
+                    if (_isLoading) Padding(padding: const EdgeInsets.only(top: 24), child: CircularProgressIndicator(color: accentColor)),
                     
                     const SizedBox(height: 24),
                     Row(
@@ -172,7 +173,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         ),
                         TextButton(
                           onPressed: _toggleMode,
-                          child: Text(_isSignUp ? 'Switch to Login' : 'Switch to Sign-up', style: const TextStyle(color: AppTheme.primaryNeon)),
+                          child: Text(_isSignUp ? 'Already have an account? Log In' : 'New? Sign up', style: TextStyle(color: accentColor)),
                         ),
                       ],
                     ),
@@ -186,14 +187,14 @@ class _AuthScreenState extends State<AuthScreen> {
     );
   }
 
-  Widget _buildCredentialInput() {
+  Widget _buildCredentialInput(Color accentColor) {
     return Column(
       children: [
         if (_isSignUp) ...[
           TextField(
             controller: _nameController,
             style: const TextStyle(color: Colors.white),
-            decoration: AppTheme.inputDecoration('Full Name').copyWith(prefixIcon: const Icon(Icons.person, color: AppTheme.primaryNeon)),
+            decoration: AppTheme.inputDecoration('Full Name', focusColor: accentColor).copyWith(prefixIcon: Icon(Icons.person, color: accentColor)),
           ),
           const SizedBox(height: 16),
         ],
@@ -201,8 +202,8 @@ class _AuthScreenState extends State<AuthScreen> {
           controller: _identifierController,
           style: const TextStyle(color: Colors.white),
           keyboardType: _emailMode ? TextInputType.emailAddress : TextInputType.phone,
-          decoration: AppTheme.inputDecoration(_emailMode ? 'Email Address' : 'Phone Number').copyWith(
-            prefixIcon: Icon(_emailMode ? Icons.email : Icons.phone, color: AppTheme.primaryNeon),
+          decoration: AppTheme.inputDecoration(_emailMode ? 'Email Address' : 'Phone Number', focusColor: accentColor).copyWith(
+            prefixIcon: Icon(_emailMode ? Icons.email : Icons.phone, color: accentColor),
           ),
         ),
         const SizedBox(height: 16),
@@ -210,13 +211,17 @@ class _AuthScreenState extends State<AuthScreen> {
           controller: _passwordController,
           style: const TextStyle(color: Colors.white),
           obscureText: true,
-          decoration: AppTheme.inputDecoration(_isSignUp ? 'Create password' : 'Password').copyWith(
-            prefixIcon: const Icon(Icons.lock_outline, color: AppTheme.primaryNeon),
+          decoration: AppTheme.inputDecoration(_isSignUp ? 'Create password' : 'Password', focusColor: accentColor).copyWith(
+            prefixIcon: Icon(Icons.lock_outline, color: accentColor),
           ),
         ),
         const SizedBox(height: 24),
         ElevatedButton(
-          style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 54)),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: accentColor,
+            foregroundColor: AppTheme.backgroundMatte,
+            minimumSize: const Size(double.infinity, 54)
+          ),
           onPressed: _isLoading ? null : _handleAuthAction,
           child: Text(_isSignUp ? 'Verify & Continue' : 'Log In'),
         ),
@@ -233,16 +238,21 @@ class _AuthScreenState extends State<AuthScreen> {
     );
   }
 
-  Widget _buildChannelToggle(String label, IconData icon, VoidCallback onTap) {
+  Widget _buildChannelToggle(String label, IconData icon, VoidCallback onTap, Color accentColor) {
     return OutlinedButton.icon(
-      style: OutlinedButton.styleFrom(minimumSize: const Size(double.infinity, 54), side: const BorderSide(color: AppTheme.primaryNeon), foregroundColor: AppTheme.primaryNeon, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+      style: OutlinedButton.styleFrom(
+        minimumSize: const Size(double.infinity, 54), 
+        side: BorderSide(color: accentColor), 
+        foregroundColor: accentColor, 
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))
+      ),
       icon: Icon(icon),
       label: Text(label),
       onPressed: onTap,
     );
   }
 
-  Widget _buildOTPInput() {
+  Widget _buildOTPInput(Color accentColor) {
     return Column(
       children: [
         Text('Verify your ${_emailMode ? "Email" : "Phone"}', style: const TextStyle(color: Colors.white70)),
@@ -253,11 +263,15 @@ class _AuthScreenState extends State<AuthScreen> {
           textAlign: TextAlign.center,
           keyboardType: TextInputType.number,
           maxLength: 6,
-          decoration: AppTheme.inputDecoration('6-Digit OTP').copyWith(counterText: ''),
+          decoration: AppTheme.inputDecoration('6-Digit OTP', focusColor: accentColor).copyWith(counterText: ''),
         ),
         const SizedBox(height: 16),
         ElevatedButton(
-          style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 54)),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: accentColor,
+            foregroundColor: AppTheme.backgroundMatte,
+            minimumSize: const Size(double.infinity, 54)
+          ),
           onPressed: _isLoading ? null : _handleVerifyOTP,
           child: const Text('Verify & Finish'),
         ),
