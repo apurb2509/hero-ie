@@ -3,13 +3,13 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'core/theme/app_theme.dart';
+import 'core/services/api_service.dart';
+import 'core/services/auth_service.dart';
 import 'features/onboarding/landing_screen.dart';
 import 'features/dashboard/user_dashboard_screen.dart';
 import 'features/dashboard/admin_dashboard_screen.dart';
 import 'features/auth/auth_screen.dart';
 import 'features/settings/settings_screen.dart';
-
-import 'core/services/api_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,7 +21,10 @@ void main() async {
 
   // Discover backend automatically
   await ApiService.discoverBackend();
-  
+
+  // Pre-load avatar from local storage into the global notifier
+  await AuthService.initAvatarNotifier();
+
   runApp(const HeroIEApp());
 }
 

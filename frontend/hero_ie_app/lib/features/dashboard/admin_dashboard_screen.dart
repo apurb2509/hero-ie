@@ -7,6 +7,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/services/api_service.dart';
 import '../../core/localization/app_localizations.dart';
 import '../../core/widgets/app_drawer.dart';
+import '../../core/widgets/app_bar_avatar.dart';
 import 'package:go_router/go_router.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
@@ -191,7 +192,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   );
                 }
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 8),
+              // Admin profile avatar — tap to see name + contact
+              const AppBarAvatar(),
             ],
           ),
           drawer: const AppDrawer(role: 'staff'),

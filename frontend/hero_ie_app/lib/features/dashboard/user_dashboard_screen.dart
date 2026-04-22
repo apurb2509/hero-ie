@@ -4,6 +4,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/services/api_service.dart';
 import '../../core/localization/app_localizations.dart';
 import '../../core/widgets/app_drawer.dart';
+import '../../core/widgets/app_bar_avatar.dart';
 import 'package:go_router/go_router.dart';
 import 'sos_form_widget.dart';
 
@@ -84,7 +85,9 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
                   );
                 }
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 8),
+              // User profile avatar — tap to see name + contact
+              const AppBarAvatar(),
             ],
           ),
           drawer: const AppDrawer(role: 'guest'),
