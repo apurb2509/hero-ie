@@ -4,12 +4,25 @@
 
 ## 🚀 Key Features
 
-### 🔐 Dual-Mode Authentication (Login & Sign-up)
+### 🔐 Advanced Authentication (Login, Sign-up & Logout)
 Provides a frictionless and secure entry system for both new and returning users.
 - **Sign-up Flow**: New users verify via Email/Phone OTP and create a password for future access.
-- **Persistent Login**: Returning users can log in instantly with their Identifier (Email/Phone) and Password, thus eliminating repetitive OTPs.
-- **Google OAuth Integration**: One-tap sign-in with automated profile synchronization and account recognition.
+- **Persistent Login**: Returning users can log in instantly with their Identifier (Email/Phone) and Password, eliminating repetitive OTPs.
+- **Secure Logout**: Clean session termination across Supabase and local cache, ensuring privacy on shared devices.
+- **Google OAuth Integration**: One-tap sign-in with automated profile synchronization.
 - **Role-Based Routing**: Automatically directs users to Admin or Guest dashboards based on their verified profile.
+
+### 👤 Comprehensive Profile Management
+A central hub for managing user identity and medical vitals crucial for emergency response.
+- **Interactive Avatar**: Users can pick, crop, and View/Remove profile photos with instant UI reactivity.
+- **Core Identity & Vitals**: Detailed management of Full Name, DOB, Blood Group, and Height (with automatic CM to FT/IN conversion).
+- **Physical Address**: Secure storage of residential data to assist responders in locating users during crises.
+- **Identity Integrity**: Features a 7-day cooldown for name changes to maintain consistent identity tracking during high-risk events.
+
+### 🌓 Adaptive UI Engineering (Themes)
+Visual comfort and high contrast designed for varying environmental conditions.
+- **Light & Dark Modes**: Fully customized "Matte Black" dark theme and high-contrast "Soft Grey" light theme.
+- **Dynamic Switching**: Global theme state management for instantaneous UI transitions without needing an app restart.
 
 ### 🧠 AI Risk Detection (Vision)
 Utilizes state-of-the-art Large Language Models (LLMs) with vision capabilities to monitor CCTV/Live-cam feeds.
@@ -21,12 +34,16 @@ Ensures survival-critical communication even in total internet blackouts.
 - **Nearby Connections**: Devices automatically form a P2P mesh network to propagate SOS alerts.
 - **Rich Media SOS**: Users can upload images or short videos of hazards, which are analyzed by AI to update building-wide evacuation routes.
 
-### 🗺️ Live Risk Heatmap
-A real-time "pulse" of the facility for staff, showing high-density areas and potential bottlenecks.
+### 🗺️ Live Risk Heatmap & Staff Console
+A real-time "pulse" of the facility for security personnel, showing high-density areas and potential bottlenecks.
 - **Vitals Monitoring**: Aggregates heart rate and location data (anonymized) to identify areas in distress.
+- **Facility Layout Ingestion**: Staff can upload custom floorplans (JPG/PNG) which the AI uses to calibrate its routing engine.
+- **Global Broadcasts**: Ability to push emergency alerts to all connected Guest nodes in the facility.
 
 ### 🏃 Dynamic AI Evacuation Routing
-- Automatically calculates the safest path to exits by avoiding zones where the AI has detected fire, smoke, or overcrowding.
+The safest exit strategies calculated in milliseconds based on real-time threats.
+- **Pathfinding**: Automatically calculates the safest path to exits by avoiding zones where the AI has detected fire, smoke, or overcrowding.
+- **Visual Guidance**: Real-time arrows and color-coded routes on the user's dashboard based on their current proximity to danger.
 
 ### 🔔 Deadman's Switch
 - Automated emergency triggers that activate if a user (e.g., security personnel) doesn't check in after a high-risk event detection.
@@ -48,12 +65,14 @@ A real-time "pulse" of the facility for staff, showing high-density areas and po
 
 ### Frontend (Flutter)
 - **Framework**: `Flutter` (Cross-platform Mobile)
-- **Authentication**: `supabase_flutter: ^2.8.1`, `google_sign_in: ^6.2.1`
-- **State Management**: `ValueNotifier` & `Provider` patterns
+- **Authentication**: `supabase_flutter`, `google_sign_in`
+- **Identity & Media**: `image_picker`, `image_cropper`, `path_provider`
+- **State Management**: `ValueNotifier` (Reactive Patterns) & `Provider`
+- **Persistence**: `shared_preferences`
+- **UI & UX**: `google_fonts` (Outfit), `go_router`
 - **Networking**: `HTTP`, `Dart IO`
-- **P2P Mesh**: `nearby_connections: ^4.3.0` (Google Nearby API)
-- **Routing**: `go_router: ^17.2.1`
-- **Media**: `video_player: ^2.9.2`, `image_picker: ^1.1.2`
+- **P2P Mesh**: `nearby_connections` (Google Nearby API)
+- **Media**: `video_player`
 
 ---
 
