@@ -72,7 +72,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         File(file.path)
       );
       if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Layout applied to routing engine.'), backgroundColor: Colors.green));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.translate('upload_success')), backgroundColor: const Color(0xFFFFB347)));
         setState(() => _layoutImage = File(file.path));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Upload failed.'), backgroundColor: Colors.red));
@@ -170,7 +170,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         return Scaffold(
           appBar: AppBar(
             title: Text(AppLocalizations.translate('admin_dashboard')),
-            backgroundColor: AppTheme.errorNeon.withOpacity(0.2),
+            backgroundColor: AppTheme.errorNeon.withValues(alpha: 0.15),
             actions: [
               ValueListenableBuilder<bool>(
                 valueListenable: ApiService.isConnected,
@@ -179,14 +179,17 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     margin: const EdgeInsets.symmetric(vertical: 12),
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     decoration: BoxDecoration(
-                      color: connected ? Colors.green.withOpacity(0.2) : Colors.red.withOpacity(0.2),
+                      color: connected
+                          ? const Color(0xFFFFB347).withValues(alpha: 0.15)
+                          : Colors.red.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: connected ? Colors.green : Colors.red),
+                      border: Border.all(
+                          color: connected ? const Color(0xFFFFB347) : Colors.red),
                     ),
                     child: Center(
                       child: Text(
                         connected ? AppLocalizations.translate('status_connected') : AppLocalizations.translate('status_offline'),
-                        style: TextStyle(color: connected ? Colors.green : Colors.red, fontSize: 10, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: connected ? const Color(0xFFFFB347) : Colors.red, fontSize: 10, fontWeight: FontWeight.bold),
                       ),
                     ),
                   );
@@ -320,12 +323,17 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     return Container(
       height: 220,
       decoration: BoxDecoration(
-        color: AppTheme.backgroundMatte,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _isLiveFeeding ? AppTheme.warningNeon : Colors.white12, width: 1.5),
-        boxShadow: _isLiveFeeding ? [
-          BoxShadow(color: AppTheme.warningNeon.withOpacity(0.2), blurRadius: 10, spreadRadius: 1)
-        ] : [],
+        border: Border.all(
+          color: _isLiveFeeding
+              ? AppTheme.warningNeon
+              : Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+          width: 1.5,
+        ),
+        boxShadow: _isLiveFeeding
+            ? [BoxShadow(color: AppTheme.warningNeon.withValues(alpha: 0.2), blurRadius: 10, spreadRadius: 1)]
+            : [],
       ),
       clipBehavior: Clip.antiAlias,
       child: Stack(

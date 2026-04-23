@@ -68,11 +68,11 @@ class _AppBarAvatarState extends State<AppBarAvatar> {
     // Re-load user info before showing card to ensure name/contact are latest too
     _loadUserInfo();
 
-    final isLight  = Theme.of(ctx).brightness == Brightness.light;
-    final primary  = isLight ? AppTheme.lightTheme.colorScheme.primary : AppTheme.primaryNeon;
-    final bg       = isLight ? Colors.white : AppTheme.surfaceColor;
-    final textColor = isLight ? Colors.black87 : Colors.white;
-    final dimColor  = isLight ? Colors.black54 : Colors.white70;
+    final primary  = AppTheme.accent(ctx);
+    final isDark   = Theme.of(ctx).brightness == Brightness.dark;
+    final bg       = isDark ? AppTheme.surfaceColor : Colors.white;
+    final textColor = isDark ? Colors.white : Colors.black87;
+    final dimColor  = isDark ? Colors.white70 : Colors.black54;
 
     showModalBottomSheet(
       context: ctx,
@@ -96,7 +96,7 @@ class _AppBarAvatarState extends State<AppBarAvatar> {
               const SizedBox(height: 20),
               CircleAvatar(
                 radius: 48,
-                backgroundColor: primary.withOpacity(0.15),
+                backgroundColor: primary.withValues(alpha: 0.15),
                 child: _buildAvatar(localPath, 48, tint: primary),
               ),
               const SizedBox(height: 16),
@@ -127,8 +127,7 @@ class _AppBarAvatarState extends State<AppBarAvatar> {
 
   @override
   Widget build(BuildContext context) {
-    final isLight = Theme.of(context).brightness == Brightness.light;
-    final primary = isLight ? AppTheme.lightTheme.colorScheme.primary : AppTheme.primaryNeon;
+    final primary = AppTheme.accent(context);
 
     return ValueListenableBuilder<String?>(
       valueListenable: AuthService.avatarNotifier,
@@ -139,7 +138,7 @@ class _AppBarAvatarState extends State<AppBarAvatar> {
             padding: const EdgeInsets.only(right: 12),
             child: CircleAvatar(
               radius: 17,
-              backgroundColor: primary.withOpacity(0.2),
+              backgroundColor: primary.withValues(alpha: 0.2),
               // Use explicit Image widget with ClipOval to force real-time redraw
               child: _buildAvatar(localPath, 17, tint: primary),
             ),
