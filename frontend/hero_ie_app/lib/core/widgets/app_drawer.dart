@@ -1,5 +1,3 @@
-import 'dart:math';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../theme/app_theme.dart';
@@ -21,21 +19,11 @@ class AppDrawer extends StatelessWidget {
       elevation: 0,
       child: Stack(
         children: [
-          // ── Background: hex-mesh ──────────────────────────────────
+          // ── Background: Clean SaaS Fluid ───────────────────────────
           Container(
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end:   Alignment.bottomCenter,
-                colors: isDark
-                    ? const [Color(0xFF0D0A00), Color(0xFF1A1200)]
-                    : const [Color(0xFFFFF9F0), Color(0xFFFFF3E0)],
-              ),
+              color: isDark ? AppTheme.backgroundMatte : AppTheme.backgroundLight,
             ),
-          ),
-          CustomPaint(
-            painter: _DrawerHexPainter(isDark: isDark),
-            child: const SizedBox.expand(),
           ),
           // Radial glow at drawer header
           Positioned(
@@ -75,49 +63,35 @@ class AppDrawer extends StatelessWidget {
                             height: 56,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: accent.withValues(alpha: 0.12),
-                              border: Border.all(color: accent.withValues(alpha: 0.45), width: 1.5),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: accent.withValues(alpha: 0.25),
-                                  blurRadius: 16,
-                                ),
-                              ],
+                              color: Theme.of(context).cardTheme.color,
+                              border: Border.all(
+                                color: Theme.of(context).dividerColor,
+                                width: 1,
+                              ),
                             ),
-                            child: Icon(Icons.shield_rounded, size: 28, color: accent),
+                            child: Icon(Icons.dashboard_customize_rounded, size: 28, color: accent),
                           ),
                           const SizedBox(height: 16),
-                          ShaderMask(
-                            shaderCallback: (b) => LinearGradient(
-                              colors: isDark
-                                  ? [AppTheme.primaryNeon, const Color(0xFFFFCC80)]
-                                  : [AppTheme.primaryLight, const Color(0xFFE59A2A)],
-                            ).createShader(b),
-                            child: Text(
-                              role == 'unauthenticated'
-                                  ? AppLocalizations.translate('app_title')
-                                  : (role == 'staff'
-                                      ? AppLocalizations.translate('sidebar_staff_portal')
-                                      : AppLocalizations.translate('sidebar_guest_portal')),
-                              style: const TextStyle(
-                                fontFamily: 'Outfit',
-                                fontSize: 22,
-                                fontWeight: FontWeight.w800,
-                                color: Colors.white,
-                                letterSpacing: 0.5,
-                              ),
+                          Text(
+                            AppLocalizations.translate('app_title'),
+                            style: TextStyle(
+                              fontFamily: 'Space Grotesk',
+                              fontSize: 26,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -0.5,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             role == 'staff'
-                                ? 'Admin Panel'
-                                : (role == 'guest' ? 'Guest Portal' : 'Emergency System'),
+                                ? AppLocalizations.translate('sidebar_staff_portal')
+                                : (role == 'guest' ? AppLocalizations.translate('sidebar_guest_portal') : AppLocalizations.translate('emergency_system')),
                             style: TextStyle(
-                              fontFamily: 'Outfit',
+                              fontFamily: 'Plus Jakarta Sans',
                               fontSize: 12,
-                              letterSpacing: 1.4,
-                              color: isDark ? Colors.white.withValues(alpha: 0.35) : Colors.black.withValues(alpha: 0.35),
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                             ),
                           ),
                         ],
@@ -153,20 +127,50 @@ class AppDrawer extends StatelessWidget {
                           ],
 
                           // Theme toggle
-                          ValueListenableBuilder<ThemeMode>(
+                          ValueListenableBuilder<AppThemeType>(
                             valueListenable: AppTheme.themeNotifier,
-                            builder: (context, currentMode, _) {
-                              final dark = currentMode == ThemeMode.dark;
-                              return _DrawerToggle(
-                                icon: dark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
-                                label: AppLocalizations.translate('sidebar_dark_mode'),
-                                accent: accent,
-                                isDark: isDark,
-                                value: dark,
-                                onChanged: (v) {
-                                  AppTheme.themeNotifier.value =
-                                      v ? ThemeMode.dark : ThemeMode.light;
-                                },
+                            builder: (context, currentType, _) {
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.palette_rounded, color: accent, size: 22),
+                                    const SizedBox(width: 14),
+                                    Text(
+                                      AppLocalizations.translate('sidebar_theme'),
+                                      style: TextStyle(
+                                        fontFamily: 'Plus Jakarta Sans',
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: Theme.of(context).colorScheme.onSurface,
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                    DropdownButton<AppThemeType>(
+                                      value: currentType,
+                                      dropdownColor: Theme.of(context).cardTheme.color,
+                                      underline: const SizedBox(),
+                                      icon: Icon(Icons.arrow_drop_down_rounded, color: accent),
+                                      style: TextStyle(
+                                        fontFamily: 'Plus Jakarta Sans',
+                                        color: Theme.of(context).colorScheme.onSurface,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                      onChanged: (AppThemeType? newTheme) {
+                                        if (newTheme != null) {
+                                          AppTheme.themeNotifier.value = newTheme;
+                                        }
+                                      },
+                                      items: AppThemeType.values.map((theme) {
+                                        return DropdownMenuItem<AppThemeType>(
+                                          value: theme,
+                                          child: Text(theme.title.toUpperCase()),
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ],
+                                ),
                               );
                             },
                           ),
@@ -182,9 +186,10 @@ class AppDrawer extends StatelessWidget {
                                 Text(
                                   AppLocalizations.translate('sidebar_language'),
                                   style: TextStyle(
-                                    fontFamily: 'Outfit',
-                                    fontSize: 15,
-                                    color: isDark ? Colors.white : Colors.black87,
+                                    fontFamily: 'Plus Jakarta Sans',
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: Theme.of(context).colorScheme.onSurface,
                                   ),
                                 ),
                                 const Spacer(),
@@ -197,12 +202,12 @@ class AppDrawer extends StatelessWidget {
                                   ),
                                   child: DropdownButton<String>(
                                     value: locale,
-                                    dropdownColor: isDark ? AppTheme.surfaceColor : Colors.white,
+                                    dropdownColor: Theme.of(context).cardTheme.color,
                                     underline: const SizedBox(),
                                     icon: Icon(Icons.arrow_drop_down_rounded, color: accent),
                                     style: TextStyle(
-                                      fontFamily: 'Outfit',
-                                      color: isDark ? Colors.white : Colors.black87,
+                                      fontFamily: 'Plus Jakarta Sans',
+                                      color: Theme.of(context).colorScheme.onSurface,
                                       fontSize: 14,
                                     ),
                                     onChanged: (v) {
@@ -239,12 +244,12 @@ class AppDrawer extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                       child: Text(
-                        'HERO-IE  ·  v1.0.0',
+                        AppLocalizations.translate('emergency_response_system') ?? 'Emergency Response System',
                         style: TextStyle(
-                          fontFamily: 'Outfit',
-                          fontSize: 10,
-                          letterSpacing: 1.8,
-                          color: isDark ? Colors.white.withValues(alpha: 0.18) : Colors.black.withValues(alpha: 0.2),
+                          fontFamily: 'Plus Jakarta Sans',
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                         ),
                       ),
                     ),
@@ -262,7 +267,7 @@ class AppDrawer extends StatelessWidget {
     showDialog(
       context: context,
       builder: (dContext) => AlertDialog(
-        backgroundColor: isDark ? AppTheme.surfaceColor : Colors.white,
+        backgroundColor: Theme.of(context).cardTheme.color,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
           side: BorderSide(color: AppTheme.errorNeon.withValues(alpha: 0.3)),
@@ -270,16 +275,16 @@ class AppDrawer extends StatelessWidget {
         title: Text(
           AppLocalizations.translate('sidebar_logout_confirm_title'),
           style: TextStyle(
-            fontFamily: 'Outfit',
+            fontFamily: 'Inter',
             fontWeight: FontWeight.w700,
-            color: isDark ? Colors.white : Colors.black87,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         content: Text(
           AppLocalizations.translate('sidebar_logout_confirm_body'),
           style: TextStyle(
-            fontFamily: 'Outfit',
-            color: isDark ? Colors.white54 : Colors.black54,
+            fontFamily: 'Inter',
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
           ),
         ),
         actions: [
@@ -296,11 +301,11 @@ class AppDrawer extends StatelessWidget {
               await AuthService.signOut();
               if (context.mounted) context.go('/');
             },
-            child: const Text(
+            child: Text(
               'Yes, Logout',
               style: TextStyle(
                 color: AppTheme.errorNeon,
-                fontFamily: 'Outfit',
+                fontFamily: 'Plus Jakarta Sans',
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -363,16 +368,16 @@ class _DrawerItemState extends State<_DrawerItem> {
               child: Text(
                 widget.label,
                 style: TextStyle(
-                  fontFamily: 'Outfit',
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                  color: widget.isDark ? Colors.white : Colors.black87,
+                  fontFamily: 'Inter',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ),
             Icon(
               Icons.chevron_right_rounded,
-              color: widget.isDark ? Colors.white24 : Colors.black26,
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
               size: 18,
             ),
           ],
@@ -414,10 +419,10 @@ class _DrawerToggle extends StatelessWidget {
             child: Text(
               label,
               style: TextStyle(
-                fontFamily: 'Outfit',
-                fontSize: 15,
-                fontWeight: FontWeight.w500,
-                color: isDark ? Colors.white : Colors.black87,
+                fontFamily: 'Plus Jakarta Sans',
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ),
@@ -452,48 +457,3 @@ class _DrawerDivider extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  DRAWER HEX PAINTER
-// ─────────────────────────────────────────────────────────────────────────────
-class _DrawerHexPainter extends CustomPainter {
-  final bool isDark;
-  _DrawerHexPainter({required this.isDark});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final color = isDark ? AppTheme.primaryNeon : AppTheme.primaryLight;
-    final paint = Paint()
-      ..color = color.withValues(alpha: isDark ? 0.08 : 0.22)
-      ..strokeWidth = 0.7
-      ..style = PaintingStyle.stroke;
-
-    const double sqrt3  = 1.7320508;
-    const double hexSize = 34.0;
-    const double w      = hexSize * 2;
-    const double h      = hexSize * sqrt3;
-
-    for (double row = -1; row < (size.height / h) + 2; row++) {
-      for (double col = -1; col < (size.width / (w * 0.75)) + 2; col++) {
-        final bool isOdd = col.toInt() % 2 == 1;
-        final cx = col * (w * 0.75);
-        final cy = row * h + (isOdd ? h / 2 : 0);
-        _hex(canvas, cx, cy, hexSize * 0.85, paint);
-      }
-    }
-  }
-
-  void _hex(Canvas canvas, double cx, double cy, double r, Paint paint) {
-    final path = Path();
-    for (int i = 0; i < 6; i++) {
-      final a = (pi / 3) * i - pi / 6;
-      final x = cx + r * cos(a);
-      final y = cy + r * sin(a);
-      i == 0 ? path.moveTo(x, y) : path.lineTo(x, y);
-    }
-    path.close();
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant _DrawerHexPainter old) => old.isDark != isDark;
-}

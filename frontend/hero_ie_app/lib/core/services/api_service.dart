@@ -120,8 +120,13 @@ class ApiService {
 
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
-      return response.statusCode == 200;
+      if (response.statusCode == 200) {
+        isConnected.value = true;
+        return true;
+      }
+      return false;
     } catch (e) {
+      isConnected.value = false;
       print("SOS Upload Error: $e");
       return false;
     }
@@ -136,8 +141,13 @@ class ApiService {
 
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
-      return response.statusCode == 200;
+      if (response.statusCode == 200) {
+        isConnected.value = true;
+        return true;
+      }
+      return false;
     } catch (e) {
+      isConnected.value = false;
       print("Layout Upload Error: $e");
       return false;
     }
@@ -163,12 +173,14 @@ class ApiService {
       print("📡 [ADMIN MEDIA] Response Code: ${response.statusCode}");
       if (response.statusCode != 200) {
         print("❌ [ADMIN MEDIA] Server Error: ${response.body}");
+        return false;
       } else {
         print("✅ [ADMIN MEDIA] Final Response Data: ${response.body}");
+        isConnected.value = true;
+        return true;
       }
-      
-      return response.statusCode == 200;
     } catch (e) {
+      isConnected.value = false;
       print("❌ [ADMIN MEDIA] Critical Upload Error: $e");
       return false;
     }
@@ -189,11 +201,13 @@ class ApiService {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         print("✅ [SIM SETUP] Ready! ID: ${data['simulation_id']}");
+        isConnected.value = true;
         return data['simulation_id'];
       }
       print("❌ [SIM SETUP] Failed: ${response.body}");
       return null;
     } catch (e) {
+      isConnected.value = false;
       print("❌ [SIM SETUP] Error: $e");
       return null;
     }
@@ -213,11 +227,13 @@ class ApiService {
       
       if (response.statusCode == 200) {
         print("✅ [SIM POLL] Offset ${seconds}s processed.");
+        isConnected.value = true;
         return true;
       }
       print("❌ [SIM POLL] Error: ${response.body}");
       return false;
     } catch (e) {
+      isConnected.value = false;
       print("❌ [SIM POLL] Network Error: $e");
       return false;
     }
@@ -234,18 +250,20 @@ class ApiService {
         }),
       );
       if (response.statusCode == 200) {
+        isConnected.value = true;
         return jsonDecode(response.body);
       } else {
         throw Exception('Failed to load route');
       }
     } catch (e) {
+      isConnected.value = false;
       throw Exception('Network error: $e');
     }
   }
 
   static Future<void> reportVitals(String userId, String location, int heartRate, String status) async {
     try {
-      await http.post(
+      final response = await http.post(
         Uri.parse('$baseUrl/heatmap/vitals'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -255,7 +273,11 @@ class ApiService {
           'status': status,
         }),
       );
+      if (response.statusCode == 200) {
+        isConnected.value = true;
+      }
     } catch (e) {
+      isConnected.value = false;
       print('Offline or network error, vitals queued: $e');
     }
   }
@@ -264,11 +286,13 @@ class ApiService {
     try {
       final response = await http.get(Uri.parse('$baseUrl/heatmap/'));
       if (response.statusCode == 200) {
+        isConnected.value = true;
         final data = jsonDecode(response.body);
         return data['zones'] ?? [];
       }
       return [];
     } catch (e) {
+      isConnected.value = false;
       print('Failed to get heatmap: $e');
       return [];
     }
@@ -276,7 +300,7 @@ class ApiService {
 
   static Future<void> sendBroadcast(String message, String senderId) async {
     try {
-      await http.post(
+      final response = await http.post(
         Uri.parse('$baseUrl/broadcast/'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -285,7 +309,11 @@ class ApiService {
           'sender_id': senderId,
         }),
       );
+      if (response.statusCode == 200) {
+        isConnected.value = true;
+      }
     } catch (e) {
+      isConnected.value = false;
       print('Offline mode: Could not broadcast to server.');
     }
   }

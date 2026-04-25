@@ -56,7 +56,7 @@ class _SOSFormWidgetState extends State<SOSFormWidget> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(AppLocalizations.translate('sos_chat'), style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary, fontSize: 18)),
+              Text(AppLocalizations.translate('sos_chat'), style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface, fontSize: 18)),
               const SizedBox(height: 16),
               if (_selectedMedia != null)
                 Padding(

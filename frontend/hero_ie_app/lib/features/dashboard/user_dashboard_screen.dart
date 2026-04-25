@@ -118,10 +118,10 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
                           size: 48
                         ),
                         const SizedBox(height: 12),
-                        Text(AppLocalizations.translate(_safePathKey), textAlign: TextAlign.center, style: const TextStyle(fontSize: 16)),
+                        Text(AppLocalizations.translate(_safePathKey), textAlign: TextAlign.center, style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurface)),
                         if (_path.isNotEmpty) ...[
                           const SizedBox(height: 16),
-                          Text(AppLocalizations.translate('safe_path'), style: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold)),
+                          Text(AppLocalizations.translate('safe_path'), style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
                           const SizedBox(height: 8),
                           Wrap(
                             spacing: 8,

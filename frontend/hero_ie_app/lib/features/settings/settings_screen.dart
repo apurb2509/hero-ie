@@ -384,7 +384,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final isLight = Theme.of(context).brightness == Brightness.light;
     showModalBottomSheet(
       context: context,
-      backgroundColor: isLight ? Colors.white : AppTheme.surfaceColor,
+      backgroundColor: Theme.of(context).cardTheme.color ?? (isLight ? Colors.white : AppTheme.surfaceColor),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -533,8 +533,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final primary = isLight
         ? AppTheme.lightTheme.colorScheme.primary
         : AppTheme.primaryNeon;
-    final textColor = isLight ? Colors.black87 : Colors.white;
-    final dimColor = isLight ? Colors.black45 : Colors.white54;
+    final textColor = Theme.of(context).colorScheme.onSurface;
+    final dimColor = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6);
 
     InputDecoration dec(String label, {IconData? icon}) =>
         AppTheme.inputDecoration(label,

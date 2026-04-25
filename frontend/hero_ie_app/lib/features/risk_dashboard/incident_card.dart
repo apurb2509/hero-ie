@@ -73,15 +73,15 @@ class IncidentCard extends StatelessWidget {
                     ),
                     Text(
                       timestamp,
-                      style: const TextStyle(color: Colors.white54, fontSize: 12),
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 12),
                     ),
                   ],
                 ),
                 const SizedBox(height: 12),
                 Text(
                   reason,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),

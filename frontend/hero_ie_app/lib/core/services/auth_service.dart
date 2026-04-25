@@ -336,6 +336,7 @@ class AuthService {
         body: jsonEncode({'identifier': identifier, 'password': password}),
       );
       if (response.statusCode == 200) {
+        ApiService.isConnected.value = true;
         final data  = jsonDecode(response.body);
         final prefs = await SharedPreferences.getInstance();
         await prefs.setBool(_verifiedKey, true);
@@ -348,6 +349,7 @@ class AuthService {
       }
       return false;
     } catch (e) {
+      ApiService.isConnected.value = false;
       print('Login Error: $e');
       return false;
     }
@@ -364,8 +366,13 @@ class AuthService {
           if (email != null) 'email': email,
         }),
       );
-      return response.statusCode == 200;
+      if (response.statusCode == 200) {
+        ApiService.isConnected.value = true;
+        return true;
+      }
+      return false;
     } catch (e) {
+      ApiService.isConnected.value = false;
       print('Send OTP Error: $e');
       return false;
     }
@@ -395,6 +402,7 @@ class AuthService {
         }),
       );
       if (response.statusCode == 200) {
+        ApiService.isConnected.value = true;
         final prefs = await SharedPreferences.getInstance();
         await prefs.setBool(_verifiedKey, true);
         await prefs.setString(_localContactKey, phoneNumber ?? email ?? '');
@@ -406,6 +414,7 @@ class AuthService {
       }
       return false;
     } catch (e) {
+      ApiService.isConnected.value = false;
       print('Verify OTP Error: $e');
       return false;
     }

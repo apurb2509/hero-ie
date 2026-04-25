@@ -1,222 +1,214 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+enum AppThemeType { midnightCyan, cyberPurple, emeraldMatrix, crimsonAlert, asteroidBlack, lightOasis }
+
+extension AppThemeTypeExt on AppThemeType {
+  String get title {
+    switch (this) {
+      case AppThemeType.midnightCyan: return 'Midnight Cyan';
+      case AppThemeType.cyberPurple: return 'Cyber Purple';
+      case AppThemeType.emeraldMatrix: return 'Emerald Matrix';
+      case AppThemeType.crimsonAlert: return 'Crimson Alert';
+      case AppThemeType.asteroidBlack: return 'Asteroid Black';
+      case AppThemeType.lightOasis: return 'Light Oasis';
+    }
+  }
+}
+
 class AppTheme {
-  // ── DARK PALETTE — Amber / Gold ─────────────────────────────────────
-  static const Color primaryNeon    = Color(0xFFFFB347); // Amber-Gold (global dark primary)
-  static const Color primaryNeonSoft= Color(0xFFFFCC80); // Lighter amber (gradient end)
-  static const Color backgroundMatte = Color(0xFF0D0A00); // Near-black amber-tinted
-  static const Color surfaceColor   = Color(0xFF1A1400); // Dark surface
-  static const Color surfaceElevated = Color(0xFF201A00); // Cards
+  // ── THEME STATE ──────────────────────────────────────────────────────
+  static final ValueNotifier<AppThemeType> themeNotifier =
+      ValueNotifier(AppThemeType.midnightCyan);
 
-  // ── LIGHT PALETTE — Dark Amber / Goldenrod ───────────────────────────
-  static const Color primaryLight   = Color(0xFFC97B1A); // Dark amber (readable on white)
-  static const Color primaryLightSoft = Color(0xFFE59A2A); // Lighter amber for gradients
-  static const Color backgroundLight = Color(0xFFFFF9F0); // Warm off-white
-  static const Color surfaceLight   = Color(0xFFFFFFFF);
-
-  // ── SEMANTIC COLORS ──────────────────────────────────────────────────
-  static const Color errorNeon    = Color(0xFFFF3B55); // SOS Red
-  static const Color warningNeon  = Color(0xFFFFCC00); // Neon Yellow
-
-  // ── THEME NOTIFIER ───────────────────────────────────────────────────
-  static final ValueNotifier<ThemeMode> themeNotifier =
-      ValueNotifier(ThemeMode.dark);
-
-  // ── DARK THEME ───────────────────────────────────────────────────────
-  static ThemeData get darkTheme {
-    return ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.dark,
-      scaffoldBackgroundColor: backgroundMatte,
-      colorScheme: const ColorScheme.dark(
-        primary: primaryNeon,
-        secondary: primaryNeonSoft,
-        surface: surfaceElevated,
-        error: errorNeon,
-      ),
-      textTheme: GoogleFonts.outfitTextTheme(ThemeData.dark().textTheme).copyWith(
-        displayLarge:  GoogleFonts.outfit(fontWeight: FontWeight.w800, color: Colors.white),
-        displayMedium: GoogleFonts.outfit(fontWeight: FontWeight.w700, color: Colors.white),
-        headlineSmall: GoogleFonts.outfit(fontWeight: FontWeight.w700, color: Colors.white),
-        bodyLarge:     GoogleFonts.outfit(color: Color(0xAAFFFFFF)),
-        bodyMedium:    GoogleFonts.outfit(color: Color(0x88FFFFFF)),
-        labelLarge:    GoogleFonts.outfit(fontWeight: FontWeight.w600, color: Colors.white),
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: primaryNeon,
-          foregroundColor: backgroundMatte,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15, letterSpacing: 0.5),
-          elevation: 0,
-        ),
-      ),
-      outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(
-          foregroundColor: primaryNeon,
-          side: const BorderSide(color: primaryNeon, width: 1),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
-        ),
-      ),
-      cardTheme: const CardThemeData(
-        color: surfaceElevated,
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(16)),
-          side: BorderSide(color: Color(0x1AFFB347)),
-        ),
-      ),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: backgroundMatte,
-        elevation: 0,
-        centerTitle: true,
-        iconTheme: IconThemeData(color: primaryNeon),
-        foregroundColor: Colors.white,
-      ),
-      drawerTheme: const DrawerThemeData(
-        backgroundColor: backgroundMatte,
-        elevation: 0,
-      ),
-      dividerColor: Color(0x1AFFB347),
-      switchTheme: SwitchThemeData(
-        thumbColor: WidgetStateProperty.resolveWith(
-          (s) => s.contains(WidgetState.selected) ? primaryNeon : Colors.grey,
-        ),
-        trackColor: WidgetStateProperty.resolveWith(
-          (s) => s.contains(WidgetState.selected)
-              ? const Color(0x44FFB347)
-              : Colors.grey.withValues(alpha: 0.3),
-        ),
-      ),
-      snackBarTheme: SnackBarThemeData(
-        backgroundColor: surfaceElevated,
-        contentTextStyle: GoogleFonts.outfit(color: Colors.white),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+  static void cycleTheme() {
+    final v = AppThemeType.values;
+    final nextIndex = (themeNotifier.value.index + 1) % v.length;
+    themeNotifier.value = v[nextIndex];
   }
 
-  // ── LIGHT THEME ──────────────────────────────────────────────────────
-  static ThemeData get lightTheme {
-    const Color textDark = Color(0xFF1A0D00);
+  // ── PALETTE GENERATORS ───────────────────────────────────────────────
+  static Color _getAccent(AppThemeType type) {
+    switch (type) {
+      case AppThemeType.midnightCyan:  return const Color(0xFF00E5FF); // Neon Cyan
+      case AppThemeType.cyberPurple:   return const Color(0xFFB026FF); // Electric Purple
+      case AppThemeType.emeraldMatrix: return const Color(0xFF00FF66); // Hacker Green
+      case AppThemeType.crimsonAlert:  return const Color(0xFFFF3333); // Alert Red
+      case AppThemeType.asteroidBlack: return const Color(0xFFFFFFFF); // Pure White
+      case AppThemeType.lightOasis:    return const Color(0xFF0066FF); // Trust Blue
+    }
+  }
+
+  static Color _getBg(AppThemeType type) {
+    switch (type) {
+      case AppThemeType.midnightCyan:  return const Color(0xFF050A14); // Deep Navy Black
+      case AppThemeType.cyberPurple:   return const Color(0xFF0B0410); // Deep Dark Violet
+      case AppThemeType.emeraldMatrix: return const Color(0xFF040A05); // Deep Dark Green
+      case AppThemeType.crimsonAlert:  return const Color(0xFF100505); // Deep Dark Red
+      case AppThemeType.asteroidBlack: return const Color(0xFF000000); // Pitch Deep Space Black
+      case AppThemeType.lightOasis:    return const Color(0xFFFAFAFC); // Clean Off-White
+    }
+  }
+
+  static Color _getSurface(AppThemeType type) {
+    switch (type) {
+      case AppThemeType.midnightCyan:  return const Color(0xFF0C1424);
+      case AppThemeType.cyberPurple:   return const Color(0xFF140822);
+      case AppThemeType.emeraldMatrix: return const Color(0xFF08140B);
+      case AppThemeType.crimsonAlert:  return const Color(0xFF1A0808);
+      case AppThemeType.asteroidBlack: return const Color(0xFF111111); // Deep Card Grey Surface
+      case AppThemeType.lightOasis:    return const Color(0xFFFFFFFF);
+    }
+  }
+
+  static Color _getBorder(AppThemeType type) {
+    if (type == AppThemeType.lightOasis) return const Color(0xFFE4E4E7);
+    return const Color(0xFF27272A).withValues(alpha: 0.5);
+  }
+
+  // ── FULL THEME GENERATOR ─────────────────────────────────────────────
+  static ThemeData generateTheme(AppThemeType type) {
+    final isDark = type != AppThemeType.lightOasis;
+    
+    final accent = _getAccent(type);
+    final bg = _getBg(type);
+    final surface = _getSurface(type);
+    final border = _getBorder(type);
+
+    final textOnBg = (type == AppThemeType.asteroidBlack || isDark) ? const Color(0xFFE4E4E7) : const Color(0xFF09090B);
+    final textOnSurface = (type == AppThemeType.asteroidBlack) ? const Color(0xFFFFFFFF) : (isDark ? const Color(0xFFE4E4E7) : const Color(0xFF3F3F46));
+    
+    final textMutedOnBg = (type == AppThemeType.asteroidBlack || isDark) ? const Color(0xFFA1A1AA) : const Color(0xFF71717A);
+    final textHeadingOnBg = (type == AppThemeType.asteroidBlack || isDark) ? Colors.white : const Color(0xFF09090B);
 
     return ThemeData(
       useMaterial3: true,
-      brightness: Brightness.light,
-      scaffoldBackgroundColor: backgroundLight,
-      colorScheme: const ColorScheme.light(
-        primary: primaryLight,
-        secondary: primaryLightSoft,
-        surface: surfaceLight,
-        error: errorNeon,
+      brightness: isDark ? Brightness.dark : Brightness.light,
+      scaffoldBackgroundColor: bg,
+      colorScheme: ColorScheme(
+        brightness: isDark ? Brightness.dark : Brightness.light,
+        primary: accent,
+        onPrimary: (type == AppThemeType.asteroidBlack || !isDark) ? const Color(0xFF0A0A0A) : Colors.white,
+        secondary: accent.withValues(alpha: 0.7),
+        onSecondary: Colors.white,
+        error: const Color(0xFFEF4444),
+        onError: Colors.white,
+        surface: surface,
+        onSurface: textOnSurface,
+        surfaceContainer: surface, // Modern alias
+        onSurfaceVariant: textOnSurface.withValues(alpha: 0.7),
+        background: bg, // Legacy but used
+        onBackground: textOnBg,
       ),
-      textTheme: GoogleFonts.outfitTextTheme(ThemeData.light().textTheme).copyWith(
-        displayLarge:  GoogleFonts.outfit(fontWeight: FontWeight.w800, color: textDark),
-        displayMedium: GoogleFonts.outfit(fontWeight: FontWeight.w700, color: textDark),
-        headlineSmall: GoogleFonts.outfit(fontWeight: FontWeight.w700, color: textDark),
-        bodyLarge:     GoogleFonts.outfit(color: Color(0xFF4A2E00)),
-        bodyMedium:    GoogleFonts.outfit(color: Color(0xFF6A4A10)),
-        labelLarge:    GoogleFonts.outfit(fontWeight: FontWeight.w600, color: textDark),
+      textTheme: GoogleFonts.plusJakartaSansTextTheme(
+        ThemeData(brightness: isDark ? Brightness.dark : Brightness.light).textTheme,
+      ).copyWith(
+        displayLarge:  GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w800, color: textHeadingOnBg, letterSpacing: -1.0),
+        displayMedium: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w700, color: textHeadingOnBg, letterSpacing: -0.5),
+        headlineSmall: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w700, color: textHeadingOnBg),
+        bodyLarge:     GoogleFonts.plusJakartaSans(color: textOnBg, fontWeight: FontWeight.w500),
+        bodyMedium:    GoogleFonts.plusJakartaSans(color: textMutedOnBg),
+        labelLarge:    GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w700, color: (type == AppThemeType.asteroidBlack) ? Colors.white : Colors.white, letterSpacing: 0.5),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: primaryLight,
-          foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          backgroundColor: accent,
+          foregroundColor: (type == AppThemeType.asteroidBlack || !isDark) ? const Color(0xFF0A0A0A) : Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15, letterSpacing: 0.5),
-          elevation: 0,
+          textStyle: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w700, fontSize: 16, letterSpacing: 0.5),
+          elevation: isDark ? 8 : 0,
+          shadowColor: accent.withValues(alpha: 0.5),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: primaryLight,
-          side: const BorderSide(color: primaryLight, width: 1),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          foregroundColor: (type == AppThemeType.asteroidBlack) ? const Color(0xFFE4E4E7) : (isDark ? Colors.white : const Color(0xFF09090B)),
+          side: BorderSide(color: isDark ? const Color(0xFF3F3F46) : const Color(0xFFE4E4E7), width: 1),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+          textStyle: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600, fontSize: 15),
         ),
       ),
       cardTheme: CardThemeData(
-        color: surfaceLight,
+        color: surface,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: const BorderRadius.all(Radius.circular(16)),
-          side: BorderSide(color: primaryLight.withValues(alpha: 0.2)),
+          side: BorderSide(color: border),
         ),
       ),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: backgroundLight,
+      appBarTheme: AppBarTheme(
+        backgroundColor: bg,
         elevation: 0,
         centerTitle: true,
-        iconTheme: IconThemeData(color: primaryLight),
-        foregroundColor: textDark,
+        iconTheme: IconThemeData(color: (type == AppThemeType.asteroidBlack) ? const Color(0xFFFFFFFF) : (isDark ? Colors.white : const Color(0xFF09090B))),
+        foregroundColor: (type == AppThemeType.asteroidBlack) ? const Color(0xFFFFFFFF) : textHeadingOnBg,
+        titleTextStyle: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w700, fontSize: 18, color: (type == AppThemeType.asteroidBlack) ? const Color(0xFFFFFFFF) : textHeadingOnBg),
       ),
-      drawerTheme: const DrawerThemeData(
-        backgroundColor: backgroundLight,
+      drawerTheme: DrawerThemeData(
+        backgroundColor: surface,
         elevation: 0,
       ),
-      dividerColor: Color(0x30C97B1A),
+      dividerColor: border,
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith(
-          (s) => s.contains(WidgetState.selected) ? primaryLight : Colors.grey,
+          (s) => s.contains(WidgetState.selected) ? Colors.white : (isDark ? const Color(0xFFA1A1AA) : Colors.grey),
         ),
         trackColor: WidgetStateProperty.resolveWith(
           (s) => s.contains(WidgetState.selected)
-              ? const Color(0x44C97B1A)
-              : Colors.grey.withValues(alpha: 0.3),
+              ? accent
+              : (isDark ? const Color(0xFF3F3F46) : const Color(0xFFE4E4E7)),
         ),
+        trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
       ),
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: const Color(0xFF2A1800),
-        contentTextStyle: GoogleFonts.outfit(color: Colors.white),
+        backgroundColor: isDark ? const Color(0xFF27272A) : const Color(0xFF09090B),
+        contentTextStyle: GoogleFonts.plusJakartaSans(color: Colors.white),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         behavior: SnackBarBehavior.floating,
       ),
     );
   }
 
-  // ── HELPERS ──────────────────────────────────────────────────────────
+  // ── HELPERS FOR LEGACY COMPONENTS ────────────────────────────────────
+  static Color accent(BuildContext context) => Theme.of(context).colorScheme.primary;
+  static Color accentSoft(BuildContext context) => Theme.of(context).colorScheme.secondary;
+  
+  static Color get backgroundMatte => _getBg(themeNotifier.value);
+  static Color get backgroundLight => _getBg(AppThemeType.lightOasis);
 
-  /// Primary accent for the current theme.
-  static Color accent(BuildContext context) =>
-      Theme.of(context).brightness == Brightness.dark ? primaryNeon : primaryLight;
+  // Backward compatibility getters
+  static Color get primaryNeon => _getAccent(themeNotifier.value);
+  static Color get primaryNeonSoft => primaryNeon.withValues(alpha: 0.7);
+  static Color get warningNeon => const Color(0xFFF59E0B);
+  static Color get errorNeon => const Color(0xFFEF4444);
+  static Color get surfaceColor => _getSurface(themeNotifier.value);
+  static ThemeData get lightTheme => generateTheme(AppThemeType.lightOasis);
 
-  /// Soft/secondary accent (gradient end).
-  static Color accentSoft(BuildContext context) =>
-      Theme.of(context).brightness == Brightness.dark ? primaryNeonSoft : primaryLightSoft;
-
-  /// Auth accent is now the same as the primary (yellow globally).
   static Color authAccent(BuildContext context) => accent(context);
 
-  static InputDecoration inputDecoration(String label,
-      {Color? focusColor, bool isLightMode = false}) {
-    final defaultFocus =
-        focusColor ?? (isLightMode ? primaryLight : primaryNeon);
-    final borderColor = isLightMode
-        ? const Color(0xFFDEB887)   // burlywood — warm amber border
-        : const Color(0x22FFB347);
-    final labelColor =
-        isLightMode ? const Color(0xFF8B6020) : const Color(0x88FFFFFF);
-    final fillCol = isLightMode
-        ? Colors.white
-        : const Color(0x0AFFB347);
+  static InputDecoration inputDecoration(String label, {Color? focusColor, bool isLightMode = false}) {
+    final type = themeNotifier.value;
+    final isDark = type != AppThemeType.lightOasis;
+
+    final defaultFocus = focusColor ?? _getAccent(type);
+    final borderColor = isDark ? const Color(0xFF3F3F46) : const Color(0xFFE4E4E7);
+    final textColor = (type == AppThemeType.asteroidBlack) ? const Color(0xFFFFFFFF) : (isDark ? Colors.white : const Color(0xFF09090B));
+    final labelColor = (type == AppThemeType.asteroidBlack) ? const Color(0xFFA1A1AA) : (isDark ? const Color(0xFFA1A1AA) : const Color(0xFF71717A));
+    final fillCol = (type == AppThemeType.asteroidBlack) ? const Color(0xFFE4E4E7).withValues(alpha: 0.1) : (isDark ? const Color(0xFF18181B).withValues(alpha: 0.5) : const Color(0xFFF4F4F5));
 
     return InputDecoration(
       labelText: label,
-      labelStyle: TextStyle(color: labelColor),
+      labelStyle: GoogleFonts.plusJakartaSans(color: labelColor),
+      hintStyle: GoogleFonts.plusJakartaSans(color: labelColor.withValues(alpha: 0.7)),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide(color: borderColor),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: defaultFocus, width: 1.5),
+        borderSide: BorderSide(color: defaultFocus, width: 2),
       ),
       filled: true,
       fillColor: fillCol,

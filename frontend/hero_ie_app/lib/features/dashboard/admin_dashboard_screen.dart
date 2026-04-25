@@ -128,10 +128,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         _isUploading = false;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('LIVE FEED READY: Poll requests optimized.'), 
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: const Text('LIVE FEED READY: Poll requests optimized.'), 
         backgroundColor: AppTheme.warningNeon,
-        duration: Duration(seconds: 3),
+        duration: const Duration(seconds: 3),
       ));
 
       // Immediate first ingestion (offset 0)
@@ -238,7 +238,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                             backgroundColor: _isLiveFeeding ? AppTheme.warningNeon.withOpacity(0.3) : Theme.of(context).colorScheme.surface, 
                             foregroundColor: AppTheme.warningNeon, 
                             padding: const EdgeInsets.symmetric(vertical: 20),
-                            side: _isLiveFeeding ? const BorderSide(color: AppTheme.warningNeon, width: 2) : null,
+                            side: _isLiveFeeding ? BorderSide(color: AppTheme.warningNeon, width: 2) : null,
                           ),
                           icon: Icon(_isLiveFeeding ? Icons.pause : Icons.videocam),
                           label: Text(_isLiveFeeding ? AppLocalizations.translate('live_polling') : AppLocalizations.translate('live_camera')),
@@ -269,7 +269,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
                         children: [
-                          Text(AppLocalizations.translate('heatmap_title'), style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary)),
+                          Text(AppLocalizations.translate('heatmap_title'), style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
                           const SizedBox(height: 16),
                           _zones.isEmpty 
                           ? const Padding(padding: EdgeInsets.all(8.0), child: CircularProgressIndicator())
@@ -291,7 +291,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  Text(AppLocalizations.translate('broadcast'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  Text(AppLocalizations.translate('broadcast'), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Theme.of(context).colorScheme.onBackground)),
                   const SizedBox(height: 8),
                   TextField(
                     controller: _broadcastController,
@@ -343,9 +343,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const CircularProgressIndicator(color: AppTheme.warningNeon),
+                CircularProgressIndicator(color: AppTheme.warningNeon),
                 const SizedBox(height: 16),
-                Text(AppLocalizations.translate('preparing_sim'), style: const TextStyle(color: AppTheme.warningNeon, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+                Text(AppLocalizations.translate('preparing_sim'), style: TextStyle(color: AppTheme.warningNeon, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
               ],
             )
           else if (_isLiveFeeding && _videoController != null && _videoController!.value.isInitialized)
@@ -403,7 +403,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       children: [
         Icon(Icons.people, color: statusColor, size: 32),
         const SizedBox(height: 4),
-        Text(zoneName, style: const TextStyle(fontWeight: FontWeight.bold)),
+        Text(zoneName, style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
         Text('$occupants', style: TextStyle(color: statusColor, fontSize: 18)),
       ],
     );

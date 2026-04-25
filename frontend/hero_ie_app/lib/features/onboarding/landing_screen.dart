@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -19,9 +18,9 @@ class _LandingScreenState extends State<LandingScreen>
     with TickerProviderStateMixin {
   bool _showAuthRestriction = false;
   String _targetRole = 'guest';
+  bool _showLoader = true;
 
   late AnimationController _pulseController;
-  late AnimationController _rotateController;
   late AnimationController _fadeController;
   late Animation<double> _pulseAnim;
   late Animation<double> _fadeAnim;
@@ -30,15 +29,14 @@ class _LandingScreenState extends State<LandingScreen>
   void initState() {
     super.initState();
 
+    Future.delayed(const Duration(milliseconds: 1800), () {
+      if (mounted) setState(() => _showLoader = false);
+    });
+
     _pulseController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 3),
+      duration: const Duration(seconds: 4),
     )..repeat(reverse: true);
-
-    _rotateController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 60),
-    )..repeat();
 
     _fadeController = AnimationController(
       vsync: this,
@@ -57,7 +55,6 @@ class _LandingScreenState extends State<LandingScreen>
   @override
   void dispose() {
     _pulseController.dispose();
-    _rotateController.dispose();
     _fadeController.dispose();
     super.dispose();
   }
@@ -87,6 +84,10 @@ class _LandingScreenState extends State<LandingScreen>
     return ValueListenableBuilder<String>(
       valueListenable: AppLocalizations.currentLocale,
       builder: (context, locale, _) {
+        if (_showLoader) {
+          return _buildStartupLoader(isDark);
+        }
+
         return Scaffold(
           drawer: const AppDrawer(role: 'unauthenticated'),
           body: Stack(
@@ -113,19 +114,50 @@ class _LandingScreenState extends State<LandingScreen>
                         ),
                       ),
 
-                      // Theme toggle
+                      // Theme dropdown
                       Positioned(
                         top: 12,
                         right: 12,
-                        child: _GlassIconButton(
-                          icon: isDark
-                              ? Icons.light_mode_rounded
-                              : Icons.dark_mode_rounded,
-                          isDark: isDark,
-                          onPressed: () {
-                            AppTheme.themeNotifier.value =
-                                isDark ? ThemeMode.light : ThemeMode.dark;
-                          },
+                        child: ValueListenableBuilder<AppThemeType>(
+                          valueListenable: AppTheme.themeNotifier,
+                          builder: (context, currentType, _) {
+                            return PopupMenuButton<AppThemeType>(
+                              icon: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.05),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.palette_rounded, color: Theme.of(context).colorScheme.onSurface, size: 20),
+                                    const SizedBox(width: 6),
+                                    Icon(Icons.arrow_drop_down_rounded, color: Theme.of(context).colorScheme.onSurface, size: 20),
+                                  ],
+                                ),
+                              ),
+                              color: isDark ? AppTheme.surfaceColor : Colors.white,
+                              onSelected: (AppThemeType newTheme) {
+                                AppTheme.themeNotifier.value = newTheme;
+                              },
+                              itemBuilder: (BuildContext context) {
+                                return AppThemeType.values.map((theme) {
+                                  return PopupMenuItem<AppThemeType>(
+                                    value: theme,
+                                    child: Text(
+                                      theme.title.toUpperCase(),
+                                      style: TextStyle(
+                                        fontFamily: 'Space Grotesk',
+                                        color: currentType == theme ? AppTheme.accent(context) : Theme.of(context).colorScheme.onSurface,
+                                        fontWeight: currentType == theme ? FontWeight.bold : FontWeight.normal,
+                                      ),
+                                    ),
+                                  );
+                                }).toList();
+                              },
+                            );
+                          }
                         ),
                       ),
 
@@ -146,96 +178,96 @@ class _LandingScreenState extends State<LandingScreen>
   }
 
   // ------------------------------------------------------------------ //
+  //  STARTUP LOADER
+  // ------------------------------------------------------------------ //
+  Widget _buildStartupLoader(bool isDark) {
+    final accent = AppTheme.accent(context);
+    return Scaffold(
+      backgroundColor: isDark ? AppTheme.backgroundMatte : AppTheme.backgroundLight,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TweenAnimationBuilder<double>(
+              tween: Tween<double>(begin: 0.5, end: 1.0),
+              duration: const Duration(milliseconds: 1200),
+              curve: Curves.elasticOut,
+              builder: (context, scale, child) {
+                return Transform.scale(
+                  scale: scale,
+                  child: Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: accent.withValues(alpha: 0.1),
+                    ),
+                    child: Icon(Icons.security_rounded, size: 64, color: accent),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 24),
+            CircularProgressIndicator(color: accent, strokeWidth: 2),
+            const SizedBox(height: 16),
+            Text(
+              'INITIALIZING SECURE MESH...',
+              style: TextStyle(
+                fontFamily: 'Space Grotesk',
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 2.0,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ------------------------------------------------------------------ //
   //  BACKGROUND
   // ------------------------------------------------------------------ //
   Widget _buildBackground(bool isDark) {
+    final accent = AppTheme.accent(context);
+    final accentSoft = AppTheme.accentSoft(context);
+    
     return Stack(
       children: [
         // Base color
         Container(
           decoration: BoxDecoration(
-            gradient: isDark
-                ? const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Color(0xFF0D0A00),
-                      Color(0xFF1A1200),
-                      Color(0xFF0D0A00),
-                    ],
-                  )
-                : const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Color(0xFFFFF9F0),
-                      Color(0xFFFFF3E0),
-                      Color(0xFFFFFBF0),
-                    ],
-                  ),
+            color: isDark ? AppTheme.backgroundMatte : AppTheme.backgroundLight,
           ),
         ),
 
-        // Hex mesh pattern
+        // Radar Sweep / Sonar Animation
         AnimatedBuilder(
-          animation: _rotateController,
+          animation: _pulseAnim,
           builder: (_, __) => CustomPaint(
-            painter: HexMeshPainter(
-              progress: _rotateController.value,
-              isDark: isDark,
+            painter: _RadarPainter(
+              progress: _pulseAnim.value,
+              color: accent,
             ),
             child: const SizedBox.expand(),
           ),
         ),
 
-        // Radial glow — top centre
-        Positioned(
-          top: -80,
-          left: 0,
-          right: 0,
+        // Deep central glow masking the center of the radar
+        Center(
           child: AnimatedBuilder(
             animation: _pulseAnim,
             builder: (_, __) => Container(
-              height: 380,
-              decoration: BoxDecoration(
-                gradient: RadialGradient(
-                  colors: isDark
-                      ? [
-                          const Color(0xFFFFB347).withValues(alpha: 0.18 * _pulseAnim.value),
-                          Colors.transparent,
-                        ]
-                      : [
-                          const Color(0xFFC97B1A).withValues(alpha: 0.12 * _pulseAnim.value),
-                          Colors.transparent,
-                        ],
-                  radius: 0.65,
-                ),
-              ),
-            ),
-          ),
-        ),
-
-        // Radial glow — bottom centre
-        Positioned(
-          bottom: -60,
-          left: 0,
-          right: 0,
-          child: AnimatedBuilder(
-            animation: _pulseAnim,
-            builder: (_, __) => Container(
+              width: 300,
               height: 300,
               decoration: BoxDecoration(
+                shape: BoxShape.circle,
                 gradient: RadialGradient(
-                  colors: isDark
-                      ? [
-                          const Color(0xFFFFCC80).withValues(alpha: 0.10 * _pulseAnim.value),
-                          Colors.transparent,
-                        ]
-                      : [
-                          const Color(0xFFE59A2A).withValues(alpha: 0.08 * _pulseAnim.value),
-                          Colors.transparent,
-                        ],
-                  radius: 0.55,
+                  colors: [
+                    accent.withValues(alpha: isDark ? 0.08 * _pulseAnim.value : 0.04 * _pulseAnim.value),
+                    Colors.transparent,
+                  ],
+                  radius: 0.8,
                 ),
               ),
             ),
@@ -249,89 +281,113 @@ class _LandingScreenState extends State<LandingScreen>
   //  CENTRAL CONTENT
   // ------------------------------------------------------------------ //
   Widget _buildCentralContent(bool isDark) {
-    final accent = isDark ? const Color(0xFFFFB347) : const Color(0xFFC97B1A);
-    final accentSoft = isDark ? const Color(0xFFFFCC80) : const Color(0xFFE59A2A);
+    final accent = AppTheme.accent(context);
+    final accentSoft = AppTheme.accentSoft(context);
 
     return Column(
       children: [
-        const SizedBox(height: 72),
+        const SizedBox(height: 80),
 
-        // ---- HERO ICON ----
-        AnimatedBuilder(
-          animation: _pulseAnim,
-          builder: (_, __) => Transform.scale(
-            scale: _pulseAnim.value,
-            child: Container(
-              width: 130,
-              height: 130,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    accent.withValues(alpha: 0.25),
-                    accent.withValues(alpha: 0.05),
-                  ],
-                ),
-                border: Border.all(color: accent.withValues(alpha: 0.6), width: 1.5),
-                boxShadow: [
-                  BoxShadow(
-                    color: accent.withValues(alpha: 0.35),
-                    blurRadius: 32,
-                    spreadRadius: 4,
+        // ---- GLOWING HERO SHIELD ICON ----
+        Container(
+          width: 90,
+          height: 90,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: isDark ? AppTheme.surfaceColor.withValues(alpha: 0.5) : Colors.white,
+            border: Border.all(
+              color: accent.withValues(alpha: 0.4),
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: accent.withValues(alpha: 0.25),
+                blurRadius: 30,
+                spreadRadius: 2,
+              ),
+              if (isDark) BoxShadow(
+                color: Colors.black.withValues(alpha: 0.4),
+                blurRadius: 10,
+                offset: const Offset(0, 5),
+              ),
+            ],
+          ),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              // Inner glowing core
+              AnimatedBuilder(
+                animation: _pulseAnim,
+                builder: (_, __) => Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: accent.withValues(alpha: 0.3 * _pulseAnim.value),
+                        blurRadius: 15,
+                        spreadRadius: 5 * _pulseAnim.value,
+                      ),
+                    ],
                   ),
+                ),
+              ),
+              Icon(
+                Icons.security_rounded,
+                size: 42,
+                color: isDark ? Colors.white : accent,
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 24),
+
+        // ---- APP TITLE (WORDMARK) ----
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'HERO',
+              style: TextStyle(
+                fontFamily: 'Space Grotesk',
+                fontSize: 38,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 1.5,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+            Text(
+              '-IE',
+              style: TextStyle(
+                fontFamily: 'Space Grotesk',
+                fontSize: 38,
+                fontWeight: FontWeight.w400,
+                letterSpacing: 0,
+                color: accent,
+                shadows: [
+                  Shadow(color: accent.withValues(alpha: 0.5), blurRadius: 10),
                 ],
               ),
-              child: ClipOval(
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-                  child: Center(
-                    child: Icon(
-                      Icons.shield_rounded,
-                      size: 64,
-                      color: accent,
-                    ),
-                  ),
-                ),
-              ),
             ),
-          ),
+          ],
         ),
 
-        const SizedBox(height: 28),
-
-        // ---- APP TITLE ----
-        ShaderMask(
-          shaderCallback: (bounds) => LinearGradient(
-            colors: isDark
-                ? [const Color(0xFFFFB347), const Color(0xFFFFCC80)]
-                : [const Color(0xFFC97B1A), const Color(0xFFE59A2A)],
-          ).createShader(bounds),
-          child: Text(
-            AppLocalizations.translate('app_title'),
-            style: TextStyle(
-              fontFamily: 'Outfit',
-              fontSize: 36,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 3,
-              color: Colors.white,
-            ),
-          ),
-        ),
-
-        const SizedBox(height: 6),
+        const SizedBox(height: 8),
 
         // ---- TAGLINE ----
         Text(
-          'Hospitality Emergency Response and Orchestration\nIntegrated Ecosystem',
+          AppLocalizations.translate('app_tagline'),
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontFamily: 'Outfit',
-            fontSize: 11,
-            letterSpacing: 1.2,
-            height: 1.6,
+            fontFamily: 'Plus Jakarta Sans',
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            height: 1.5,
             color: isDark
-                ? Colors.white.withValues(alpha: 0.35)
-                : Colors.black.withValues(alpha: 0.35),
+                ? const Color(0xFFA1A1AA)
+                : const Color(0xFF71717A),
           ),
         ),
 
@@ -340,45 +396,42 @@ class _LandingScreenState extends State<LandingScreen>
         // ---- ROLE SELECTION CARD ----
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(24),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-              child: Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(24),
-                  color: isDark
-                      ? Colors.white.withValues(alpha: 0.04)
-                      : Colors.white.withValues(alpha: 0.65),
-                  border: Border.all(
-                    color: isDark
-                        ? accent.withValues(alpha: 0.25)
-                        : const Color(0xFFC97B1A).withValues(alpha: 0.2),
-                    width: 1,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: accent.withValues(alpha: isDark ? 0.08 : 0.06),
-                      blurRadius: 30,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(24),
+              color: isDark
+                  ? const Color(0xFF18181B)
+                  : Colors.white,
+              border: Border.all(
+                color: isDark
+                    ? const Color(0xFF27272A)
+                    : const Color(0xFFE4E4E7),
+                width: 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.03),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
                 ),
-                child: Column(
-                  children: [
-                    Text(
-                      AppLocalizations.translate('role_selection'),
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: 'Outfit',
-                        fontSize: 13,
-                        letterSpacing: 1.2,
-                        color: isDark
-                            ? Colors.white.withValues(alpha: 0.5)
-                            : Colors.black.withValues(alpha: 0.45),
-                      ),
-                    ),
+              ],
+            ),
+            child: Column(
+              children: [
+                Text(
+                  AppLocalizations.translate('role_selection'),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'Space Grotesk',
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.8,
+                    color: isDark
+                        ? const Color(0xFFA1A1AA)
+                        : const Color(0xFF71717A),
+                  ),
+                ),
                     const SizedBox(height: 20),
 
                     // Guest Button
@@ -406,8 +459,6 @@ class _LandingScreenState extends State<LandingScreen>
                 ),
               ),
             ),
-          ),
-        ),
 
         const SizedBox(height: 32),
 
@@ -415,12 +466,13 @@ class _LandingScreenState extends State<LandingScreen>
         Text(
           'SECURE · ENCRYPTED · OFFLINE-READY',
           style: TextStyle(
-            fontFamily: 'Outfit',
-            fontSize: 10,
-            letterSpacing: 2.2,
+            fontFamily: 'Space Grotesk',
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 1.5,
             color: isDark
-                ? Colors.white.withValues(alpha: 0.2)
-                : Colors.black.withValues(alpha: 0.2),
+                ? const Color(0xFF52525B)
+                : const Color(0xFFA1A1AA),
           ),
         ),
 
@@ -433,7 +485,7 @@ class _LandingScreenState extends State<LandingScreen>
   //  AUTH OVERLAY
   // ------------------------------------------------------------------ //
   Widget _buildAuthOverlay(bool isDark) {
-    final accent = isDark ? const Color(0xFFFFB347) : const Color(0xFFC97B1A);
+    final accent = AppTheme.accent(context);
 
     return Positioned.fill(
       child: AnimatedOpacity(
@@ -443,119 +495,109 @@ class _LandingScreenState extends State<LandingScreen>
           filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
           child: Container(
             color: isDark
-                ? Colors.black.withValues(alpha: 0.55)
+                ? Colors.black.withValues(alpha: 0.6)
                 : Colors.white.withValues(alpha: 0.7),
             child: Center(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 28),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(28),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                    child: Container(
-                      padding: const EdgeInsets.all(32),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(28),
-                        color: isDark
-                            ? Colors.white.withValues(alpha: 0.05)
-                            : Colors.white.withValues(alpha: 0.8),
-                        border: Border.all(
-                          color: accent.withValues(alpha: 0.35),
-                          width: 1,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: accent.withValues(alpha: 0.15),
-                            blurRadius: 40,
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            width: 80,
-                            height: 80,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: accent.withValues(alpha: 0.12),
-                              border: Border.all(
-                                  color: accent.withValues(alpha: 0.5), width: 1.5),
-                            ),
-                            child: Icon(Icons.lock_person_rounded,
-                                size: 40, color: accent),
-                          ),
-                          const SizedBox(height: 20),
-                          Text(
-                            'Sign In to Continue',
-                            style: TextStyle(
-                              fontFamily: 'Outfit',
-                              fontSize: 20,
-                              fontWeight: FontWeight.w700,
-                              color: isDark ? Colors.white : Colors.black87,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            'Verified access is required for emergency\nsafety and coordination.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontFamily: 'Outfit',
-                              fontSize: 13,
-                              color: isDark
-                                  ? Colors.white.withValues(alpha: 0.5)
-                                  : Colors.black.withValues(alpha: 0.45),
-                              height: 1.6,
-                            ),
-                          ),
-                          const SizedBox(height: 28),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: accent,
-                                foregroundColor: isDark
-                                    ? const Color(0xFF0D0A00)
-                                    : Colors.white,
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 16),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(14),
-                                ),
-                                textStyle: const TextStyle(
-                                  fontFamily: 'Outfit',
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 15,
-                                  letterSpacing: 1.2,
-                                ),
-                                elevation: 0,
-                                shadowColor: Colors.transparent,
-                              ),
-                              onPressed: () {
-                                setState(() => _showAuthRestriction = false);
-                                context.push('/auth?role=$_targetRole');
-                              },
-                              child: const Text('SIGN IN'),
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          TextButton(
-                            onPressed: () =>
-                                setState(() => _showAuthRestriction = false),
-                            child: Text(
-                              'Go Back',
-                              style: TextStyle(
-                                fontFamily: 'Outfit',
-                                color: isDark
-                                    ? Colors.white30
-                                    : Colors.black38,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                child: Container(
+                  padding: const EdgeInsets.all(32),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(28),
+                    color: isDark
+                        ? const Color(0xFF18181B)
+                        : Colors.white,
+                    border: Border.all(
+                      color: isDark ? const Color(0xFF27272A) : const Color(0xFFE4E4E7),
+                      width: 1,
                     ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 40,
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: isDark ? const Color(0xFF27272A) : const Color(0xFFF4F4F5),
+                          border: Border.all(
+                              color: isDark ? const Color(0xFF3F3F46) : const Color(0xFFE4E4E7), 
+                              width: 1.5),
+                        ),
+                        child: Icon(Icons.lock_person_rounded,
+                            size: 40, color: accent),
+                      ),
+                      const SizedBox(height: 24),
+                      Text(
+                        AppLocalizations.translate('sign_in_to_continue'),
+                        style: TextStyle(
+                          fontFamily: 'Space Grotesk',
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Verified access is required for emergency\nsafety and coordination.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontFamily: 'Plus Jakarta Sans',
+                          fontSize: 13,
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                          height: 1.6,
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: accent,
+                            foregroundColor: Colors.white,
+                            padding:
+                                const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            textStyle: const TextStyle(
+                              fontFamily: 'Space Grotesk',
+                              fontWeight: FontWeight.w700,
+                              fontSize: 16,
+                              letterSpacing: 0.5,
+                            ),
+                            elevation: isDark ? 8 : 0,
+                            shadowColor: accent.withValues(alpha: 0.4),
+                          ),
+                          onPressed: () {
+                            setState(() => _showAuthRestriction = false);
+                            context.push('/auth?role=$_targetRole');
+                          },
+                          child: Text(AppLocalizations.translate('sign_in_to_continue').toUpperCase()),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      TextButton(
+                        onPressed: () =>
+                            setState(() => _showAuthRestriction = false),
+                        child: Text(
+                          AppLocalizations.translate('back_btn'),
+                          style: TextStyle(
+                            fontFamily: 'Plus Jakarta Sans',
+                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -583,34 +625,26 @@ class _GlassIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(14),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-        child: Container(
-          width: 46,
-          height: 46,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            color: isDark
-                ? Colors.white.withValues(alpha: 0.06)
-                : Colors.white.withValues(alpha: 0.5),
-            border: Border.all(
-              color: isDark
-                  ? Colors.white.withValues(alpha: 0.1)
-                  : Colors.black.withValues(alpha: 0.08),
-            ),
-          ),
-          child: IconButton(
-            padding: EdgeInsets.zero,
-            icon: Icon(icon,
-                size: 22,
-                color: isDark
-                    ? const Color(0xFFFFB347)
-                    : const Color(0xFFC97B1A)),
-            onPressed: onPressed,
-          ),
+    return Container(
+      width: 44,
+      height: 44,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: isDark
+            ? const Color(0xFF18181B)
+            : Colors.white,
+        border: Border.all(
+          color: isDark
+              ? const Color(0xFF27272A)
+              : const Color(0xFFE4E4E7),
         ),
+      ),
+      child: IconButton(
+        padding: EdgeInsets.zero,
+        icon: Icon(icon,
+            size: 20,
+            color: Theme.of(context).colorScheme.onSurface),
+        onPressed: onPressed,
       ),
     );
   }
@@ -657,33 +691,18 @@ class _RoleButtonState extends State<_RoleButton> {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14),
-          gradient: widget.isPrimary
-              ? LinearGradient(
-                  colors: [
-                    widget.accent.withValues(alpha: _hovering ? 1.0 : 0.9),
-                    widget.accent.withValues(alpha: _hovering ? 0.75 : 0.65),
-                  ],
-                )
-              : null,
+          borderRadius: BorderRadius.circular(12),
           color: widget.isPrimary
-              ? null
-              : widget.isDark
-                  ? Colors.white.withValues(alpha: _hovering ? 0.08 : 0.04)
-                  : Colors.black.withValues(alpha: _hovering ? 0.06 : 0.03),
+              ? widget.accent.withValues(alpha: _hovering ? 0.9 : 1.0)
+              : (widget.isDark
+                  ? const Color(0xFF27272A).withValues(alpha: _hovering ? 0.8 : 0.5)
+                  : const Color(0xFFF4F4F5).withValues(alpha: _hovering ? 0.8 : 1.0)),
           border: Border.all(
-            color: widget.accent.withValues(alpha: widget.isPrimary ? 0 : 0.5),
+            color: widget.isPrimary
+                ? Colors.transparent
+                : (widget.isDark ? const Color(0xFF3F3F46) : const Color(0xFFE4E4E7)),
             width: 1,
           ),
-          boxShadow: widget.isPrimary
-              ? [
-                  BoxShadow(
-                    color: widget.accent.withValues(alpha: _hovering ? 0.45 : 0.25),
-                    blurRadius: _hovering ? 20 : 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ]
-              : [],
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -692,20 +711,19 @@ class _RoleButtonState extends State<_RoleButton> {
               widget.icon,
               size: 20,
               color: widget.isPrimary
-                  ? (widget.isDark ? const Color(0xFF0D0A00) : Colors.white)
-                  : widget.accent,
+                  ? Theme.of(context).colorScheme.onPrimary
+                  : Theme.of(context).colorScheme.onSurface,
             ),
             const SizedBox(width: 10),
             Text(
               widget.label,
               style: TextStyle(
-                fontFamily: 'Outfit',
+                fontFamily: 'Plus Jakarta Sans',
                 fontSize: 15,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 0.5,
+                fontWeight: FontWeight.w600,
                 color: widget.isPrimary
-                    ? (widget.isDark ? const Color(0xFF0D0A00) : Colors.white)
-                    : widget.accent,
+                    ? Theme.of(context).colorScheme.onPrimary
+                    : Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ],
@@ -716,86 +734,44 @@ class _RoleButtonState extends State<_RoleButton> {
 }
 
 // ====================================================================== //
-//  HEX MESH PAINTER
+//  RADAR SWEEP BACKGROUND PAINTER
 // ====================================================================== //
-class HexMeshPainter extends CustomPainter {
+class _RadarPainter extends CustomPainter {
   final double progress;
-  final bool isDark;
+  final Color color;
 
-  HexMeshPainter({required this.progress, required this.isDark});
+  _RadarPainter({required this.progress, required this.color});
 
   @override
   void paint(Canvas canvas, Size size) {
-    final accentColor = isDark
-        ? const Color(0xFFFFB347)
-        : const Color(0xFFC97B1A);
+    final paint = Paint()
+      ..color = color.withValues(alpha: 0.15)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.0;
 
-    final linePaint = Paint()
-      ..color = accentColor.withValues(alpha: isDark ? 0.08 : 0.22)
-      ..strokeWidth = 0.8
-      ..style = PaintingStyle.stroke;
+    final center = Offset(size.width / 2, size.height * 0.4);
+    final maxRadius = size.height * 0.6;
 
-    final glowPaint = Paint()
-      ..color = accentColor.withValues(alpha: isDark ? 0.22 : 0.25)
-      ..strokeWidth = 1.2
-      ..style = PaintingStyle.stroke;
-
-    final dotPaint = Paint()
-      ..color = accentColor.withValues(alpha: isDark ? 0.35 : 0.40)
-      ..style = PaintingStyle.fill;
-
-    const double sqrt3 = 1.7320508;
-    const double hexSize = 38.0;
-    const double w = hexSize * 2;
-    const double h = hexSize * sqrt3;
-
-    // Subtle slow drift
-    final double offsetX = (size.width * 0.04) * sin(progress * 2 * pi);
-    final double offsetY = (size.height * 0.02) * cos(progress * 2 * pi);
-
-    for (double row = -1; row < (size.height / h) + 2; row++) {
-      for (double col = -1; col < (size.width / (w * 0.75)) + 2; col++) {
-        final bool isOdd = col.toInt() % 2 == 1;
-        final double cx = col * (w * 0.75) + offsetX;
-        final double cy = row * h + (isOdd ? h / 2 : 0) + offsetY;
-
-        // Distance from centre — fade glowing hexes near centre
-        final double distFromCenter = sqrt(
-          pow(cx - size.width / 2, 2) + pow(cy - size.height * 0.38, 2),
-        );
-
-        final bool isGlow = distFromCenter < size.width * 0.35;
-        _drawHexagon(canvas, cx, cy, hexSize * 0.88,
-            isGlow ? glowPaint : linePaint);
-
-        // Draw vertex dots
-        for (int i = 0; i < 6; i++) {
-          final double angle = (pi / 3) * i - pi / 6;
-          final double vx = cx + hexSize * 0.88 * cos(angle);
-          final double vy = cy + hexSize * 0.88 * sin(angle);
-          canvas.drawCircle(Offset(vx, vy), isGlow ? 1.8 : 1.0, dotPaint);
-        }
-      }
+    // Draw 4 expanding rings
+    for (int i = 0; i < 4; i++) {
+        double r = ((progress + (i * 0.25)) % 1.0) * maxRadius;
+        // Fade out as it expands
+        final alphaMultiplier = 1.0 - (r / maxRadius);
+        paint.color = color.withValues(alpha: 0.25 * alphaMultiplier);
+        canvas.drawCircle(center, r, paint);
     }
-  }
-
-  void _drawHexagon(Canvas canvas, double cx, double cy, double r, Paint paint) {
-    final path = Path();
-    for (int i = 0; i < 6; i++) {
-      final double angle = (pi / 3) * i - pi / 6;
-      final double x = cx + r * cos(angle);
-      final double y = cy + r * sin(angle);
-      if (i == 0) {
-        path.moveTo(x, y);
-      } else {
-        path.lineTo(x, y);
-      }
-    }
-    path.close();
-    canvas.drawPath(path, paint);
+    
+    // Draw crosshairs
+    final chPaint = Paint()
+      ..color = color.withValues(alpha: 0.05)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.0;
+      
+    canvas.drawLine(Offset(center.dx, 0), Offset(center.dx, size.height), chPaint);
+    canvas.drawLine(Offset(0, center.dy), Offset(size.width, center.dy), chPaint);
   }
 
   @override
-  bool shouldRepaint(covariant HexMeshPainter old) =>
-      old.progress != progress || old.isDark != isDark;
+  bool shouldRepaint(covariant _RadarPainter old) => old.progress != progress || old.color != color;
 }
+

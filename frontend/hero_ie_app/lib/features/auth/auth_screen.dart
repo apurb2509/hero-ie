@@ -1,9 +1,9 @@
-import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/services/auth_service.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/localization/app_localizations.dart';
 
 class AuthScreen extends StatefulWidget {
   final String initialRole;
@@ -144,39 +144,27 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
       backgroundColor: Colors.transparent,
       body: Stack(
         children: [
-          // ── Hex-mesh background (same as landing) ──────────────────
+          // ── Clean Fluid SaaS Background ──────────────────────────
           Container(
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end:   Alignment.bottomRight,
-                colors: isDark
-                    ? const [Color(0xFF080D08), Color(0xFF1A1200), Color(0xFF080D08)]
-                    : const [Color(0xFFFFF9F0), Color(0xFFFFF3E0), Color(0xFFFFFBF0)],
-              ),
+              color: isDark ? AppTheme.backgroundMatte : AppTheme.backgroundLight,
             ),
           ),
-          AnimatedBuilder(
-            animation: _bgController,
-            builder: (_, __) => CustomPaint(
-              painter: _AuthHexPainter(progress: _bgController.value, isDark: isDark),
-              child: const SizedBox.expand(),
-            ),
-          ),
-          // Radial glow behind card — auth accent colour
+          
+          // Subtle radial glow
           Center(
             child: AnimatedBuilder(
               animation: _bgController,
               builder: (_, __) => Container(
-                width: 500,
-                height: 500,
+                width: 600,
+                height: 600,
                 decoration: BoxDecoration(
                   gradient: RadialGradient(
                     colors: [
-                      accent.withValues(alpha: 0.12),
+                      AppTheme.accentSoft(context).withValues(alpha: isDark ? 0.05 : 0.03),
                       Colors.transparent,
                     ],
-                    radius: 0.5,
+                    radius: 0.6,
                   ),
                 ),
               ),
@@ -198,18 +186,16 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                         padding: const EdgeInsets.all(28),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(28),
-                          color: isDark
-                              ? Colors.white.withValues(alpha: 0.04)
-                              : Colors.white.withValues(alpha: 0.72),
+                          color: AppTheme.surfaceColor.withValues(alpha: 0.7),
                           border: Border.all(
                             color: accent.withValues(alpha: 0.3),
                             width: 1,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: accent.withValues(alpha: 0.12),
+                              color: accent.withValues(alpha: 0.1),
                               blurRadius: 40,
-                              offset: const Offset(0, 8),
+                              offset: const Offset(0, 10),
                             ),
                           ],
                         ),
@@ -222,15 +208,15 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                               height: 64,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: accent.withValues(alpha: 0.12),
-                                border: Border.all(color: accent.withValues(alpha: 0.45)),
+                                color: AppTheme.backgroundMatte,
+                                border: Border.all(color: accent.withValues(alpha: 0.5), width: 1.5),
                               ),
                               child: Icon(
                                 _phoneMode
                                     ? Icons.phone_android_rounded
                                     : (_emailMode
                                         ? Icons.email_rounded
-                                        : Icons.shield_rounded),
+                                        : Icons.dashboard_customize_rounded),
                                 size: 32,
                                 color: accent,
                               ),
@@ -238,33 +224,25 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                             const SizedBox(height: 16),
 
                             // Title
-                            ShaderMask(
-                              shaderCallback: (b) => LinearGradient(
-                                colors: isDark
-                                    ? [accent, accent.withValues(alpha: 0.7)]
-                                    : [accent, accent],
-                              ).createShader(b),
-                              child: Text(
-                                _isSignUp ? 'Create Account' : 'Welcome Back',
-                                style: const TextStyle(
-                                  fontFamily: 'Outfit',
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.w800,
-                                  color: Colors.white,
-                                ),
+                            Text(
+                              _isSignUp ? 'Create Account' : 'Welcome Back',
+                              style: TextStyle(
+                                fontFamily: 'Space Grotesk',
+                                fontSize: 24,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: -0.5,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               _isSignUp
                                   ? 'Register to HERO-IE system'
-                                  : 'Sign in to continue',
+                                  : AppLocalizations.translate('sign_in_to_continue'),
                               style: TextStyle(
-                                fontFamily: 'Outfit',
+                                fontFamily: 'Space Grotesk',
                                 fontSize: 13,
-                                color: isDark
-                                    ? Colors.white.withValues(alpha: 0.4)
-                                    : Colors.black.withValues(alpha: 0.4),
+                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                               ),
                             ),
                             const SizedBox(height: 28),
@@ -276,7 +254,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                               _buildDivider(isDark),
                               const SizedBox(height: 14),
                               _ChannelButton(
-                                label: 'Continue with Email',
+                                label: AppLocalizations.translate('continue_with_email'),
                                 icon: Icons.email_rounded,
                                 accent: accent,
                                 isDark: isDark,
@@ -284,7 +262,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                               ),
                               const SizedBox(height: 10),
                               _ChannelButton(
-                                label: 'Continue with Phone',
+                                label: AppLocalizations.translate('continue_with_phone'),
                                 icon: Icons.phone_rounded,
                                 accent: accent,
                                 isDark: isDark,
@@ -314,9 +292,9 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                                     _otpSent   = false;
                                   }),
                                   child: Text(
-                                    'Back',
+                                    AppLocalizations.translate('back_btn'),
                                     style: TextStyle(
-                                      fontFamily: 'Outfit',
+                                      fontFamily: 'Plus Jakarta Sans',
                                       color: isDark ? Colors.white30 : Colors.black38,
                                     ),
                                   ),
@@ -324,9 +302,9 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                                 TextButton(
                                   onPressed: _toggleMode,
                                   child: Text(
-                                    _isSignUp ? 'Have account? Log In' : 'New? Sign Up',
+                                    _isSignUp ? AppLocalizations.translate('have_account_login') : AppLocalizations.translate('new_sign_up'),
                                     style: TextStyle(
-                                      fontFamily: 'Outfit',
+                                      fontFamily: 'Plus Jakarta Sans',
                                       fontWeight: FontWeight.w600,
                                       color: accent,
                                     ),
@@ -357,7 +335,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
           child: Text(
             'OR',
             style: TextStyle(
-              fontFamily: 'Outfit',
+              fontFamily: 'Plus Jakarta Sans',
               fontSize: 11,
               letterSpacing: 1.5,
               color: isDark ? Colors.white24 : Colors.black26,
@@ -374,16 +352,17 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
       width: double.infinity,
       child: ElevatedButton.icon(
         style: ElevatedButton.styleFrom(
-          backgroundColor: isDark ? const Color(0xFF1A1A1A) : Colors.white,
-          foregroundColor: isDark ? Colors.white : Colors.black87,
+          backgroundColor: Colors.white,
+          foregroundColor: const Color(0xFF09090B),
           padding: const EdgeInsets.symmetric(vertical: 14),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-            side: BorderSide(color: isDark ? Colors.white12 : Colors.black12),
+            borderRadius: BorderRadius.circular(12),
+            side: const BorderSide(color: Color(0xFFE4E4E7)),
           ),
-          elevation: 0,
+          elevation: 2,
+          shadowColor: Colors.black.withValues(alpha: 0.1),
           textStyle: const TextStyle(
-            fontFamily: 'Outfit',
+            fontFamily: 'Space Grotesk',
             fontWeight: FontWeight.w600,
             fontSize: 15,
           ),
@@ -392,7 +371,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
           'https://www.gstatic.com/images/branding/product/2x/googleg_48dp.png',
           height: 22,
         ),
-        label: const Text('Continue with Google'),
+        label: Text(AppLocalizations.translate('continue_with_google')),
         onPressed: _isLoading ? null : _handleGoogleSignIn,
       ),
     );
@@ -435,15 +414,15 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: accent,
-              foregroundColor: isDark ? AppTheme.backgroundMatte : Colors.white,
+              foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               elevation: 0,
               textStyle: const TextStyle(
-                fontFamily: 'Outfit',
-                fontWeight: FontWeight.w700,
+                fontFamily: 'Space Grotesk',
+                fontWeight: FontWeight.w600,
                 fontSize: 15,
-                letterSpacing: 0.8,
+                letterSpacing: 0.5,
               ),
             ),
             onPressed: _isLoading ? null : _handleAuthAction,
@@ -461,7 +440,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
           'Enter the 6-digit code sent to your ${_emailMode ? "email" : "phone"}',
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontFamily: 'Outfit',
+            fontFamily: 'Plus Jakarta Sans',
             fontSize: 13,
             color: isDark ? Colors.white54 : Colors.black54,
           ),
@@ -505,7 +484,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
               elevation: 0,
               textStyle: const TextStyle(
-                fontFamily: 'Outfit',
+                fontFamily: 'Plus Jakarta Sans',
                 fontWeight: FontWeight.w700,
                 fontSize: 15,
                 letterSpacing: 0.8,
@@ -552,15 +531,15 @@ class _AuthField extends StatelessWidget {
       keyboardType: keyboardType,
       enableInteractiveSelection: true,
       style: TextStyle(
-        fontFamily: 'Outfit',
-        color: isDark ? Colors.white : Colors.black87,
+        fontFamily: 'Plus Jakarta Sans',
+        color: Theme.of(context).colorScheme.onSurface,
         fontSize: 15,
       ),
       decoration: InputDecoration(
         labelText: label,
         labelStyle: TextStyle(
-          fontFamily: 'Outfit',
-          color: isDark ? Colors.white38 : Colors.black38,
+          fontFamily: 'Plus Jakarta Sans',
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
         ),
         prefixIcon: Icon(icon, color: accent, size: 20),
         suffixIcon: onToggleObscure != null
@@ -630,26 +609,26 @@ class _ChannelButtonState extends State<_ChannelButton> {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(12),
           color: widget.isDark
-              ? widget.accent.withValues(alpha: _pressing ? 0.12 : 0.06)
-              : widget.accent.withValues(alpha: _pressing ? 0.1 : 0.05),
+              ? const Color(0xFF27272A).withValues(alpha: _pressing ? 0.8 : 0.4)
+              : const Color(0xFFF4F4F5).withValues(alpha: _pressing ? 0.8 : 0.4),
           border: Border.all(
-            color: widget.accent.withValues(alpha: _pressing ? 0.55 : 0.3),
+            color: widget.isDark ? const Color(0xFF3F3F46) : const Color(0xFFE4E4E7),
           ),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(widget.icon, color: widget.accent, size: 20),
+            Icon(widget.icon, color: Theme.of(context).colorScheme.onSurface, size: 18),
             const SizedBox(width: 10),
             Text(
               widget.label,
               style: TextStyle(
-                fontFamily: 'Outfit',
+                fontFamily: 'Space Grotesk',
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: widget.accent,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ],
@@ -659,72 +638,4 @@ class _ChannelButtonState extends State<_ChannelButton> {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  BACKGROUND HEX PAINTER (same algorithm as landing)
-// ─────────────────────────────────────────────────────────────────────────────
-class _AuthHexPainter extends CustomPainter {
-  final double progress;
-  final bool isDark;
 
-  _AuthHexPainter({required this.progress, required this.isDark});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    // Use auth accent colour tint for the hex mesh
-    final meshColor = isDark
-        ? const Color(0xFFFFB347)
-        : const Color(0xFFE59A2A); 
-
-    final linePaint = Paint()
-      ..color = meshColor.withValues(alpha: isDark ? 0.08 : 0.12)
-      ..strokeWidth = 0.8
-      ..style = PaintingStyle.stroke;
-
-    final dotPaint = Paint()
-      ..color = meshColor.withValues(alpha: isDark ? 0.25 : 0.35)
-      ..style = PaintingStyle.fill;
-
-    const double sqrt3  = 1.7320508;
-    const double hexSize = 40.0;
-    const double w      = hexSize * 2;
-    const double h      = hexSize * sqrt3;
-
-    final double ox = (size.width * 0.03) * sin(progress * 2 * pi);
-    final double oy = (size.height * 0.02) * cos(progress * 2 * pi);
-
-    for (double row = -1; row < (size.height / h) + 2; row++) {
-      for (double col = -1; col < (size.width / (w * 0.75)) + 2; col++) {
-        final bool isOdd = col.toInt() % 2 == 1;
-        final double cx = col * (w * 0.75) + ox;
-        final double cy = row * h + (isOdd ? h / 2 : 0) + oy;
-
-        _drawHexagon(canvas, cx, cy, hexSize * 0.85, linePaint);
-
-        for (int i = 0; i < 6; i++) {
-          final angle = (pi / 3) * i - pi / 6;
-          canvas.drawCircle(
-            Offset(cx + hexSize * 0.85 * cos(angle), cy + hexSize * 0.85 * sin(angle)),
-            1.0,
-            dotPaint,
-          );
-        }
-      }
-    }
-  }
-
-  void _drawHexagon(Canvas canvas, double cx, double cy, double r, Paint paint) {
-    final path = Path();
-    for (int i = 0; i < 6; i++) {
-      final a = (pi / 3) * i - pi / 6;
-      final x = cx + r * cos(a);
-      final y = cy + r * sin(a);
-      i == 0 ? path.moveTo(x, y) : path.lineTo(x, y);
-    }
-    path.close();
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant _AuthHexPainter old) =>
-      old.progress != progress || old.isDark != isDark;
-}
